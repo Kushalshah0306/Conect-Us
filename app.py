@@ -26,9 +26,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'conect-us-secret-key-change-in-produc
 app.config['SECRET_KEY'] = SECRET_KEY
 
 # Setup MongoDB Connection
-MONGO_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/')
-client = MongoClient(MONGO_URI, tlsCAFile=certifi.where())
-db = client['conect_us']
+MONGO_URI = os.environ.get('MONGO_URI')
+if not MONGO_URI:
+    # Fallback to local for dev if no env var
+    MONGO_URI = 'mongodb://localhost:27017/'
+    print("WARNING: MONGO_URI environment variable not set. Falling back to localhost.")
+
+try:
+    client = MongoClient(MONGO_URI, tlsCAFile=certifi.where(), serverSelectionTimeoutMS=5000)
+    db = client['conect_us']
+except Exception as e:
+    print(f"FAILED to initialize MongoDB client: {e}")
+    db = None # Routes will fail gracefully if they check for db
 
 # Fixed admin credentials
 ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@conectus.com')
@@ -482,58 +491,64 @@ def update_booking(booking_id, action):
     return redirect(url_for('admin_dashboard'))
 
 def init_db():
+    if db is None:
+        print("Skipping DB initialization: db is None")
+        return
     # Only populate if empty
-    if db.service_categories.count_documents({}) == 0:
-        home_services = [
-            {'name': 'Plumber', 'description': 'Fix leaks, pipe fitting, and plumbing issues', 
-             'image_url': 'https://cdn.pixabay.com/photo/2017/09/26/11/10/plumber-2788332_1280.jpg', 'category_type': 'home'},
-            {'name': 'Electrician', 'description': 'Electrical repairs and installations',
-             'image_url': 'https://cdn.pixabay.com/photo/2015/05/01/18/13/electrician-748832_1280.jpg', 'category_type': 'home'},
-            {'name': 'Carpenter', 'description': 'Furniture repair and custom carpentry',
-             'image_url': 'https://cdn.pixabay.com/photo/2022/04/14/05/54/carpenter-7131654_1280.jpg', 'category_type': 'home'},
-            {'name': 'House Cleaning', 'description': 'Deep cleaning and regular housekeeping',
-             'image_url': 'https://cdn.pixabay.com/photo/2019/04/02/18/16/cleaning-4098410_1280.jpg', 'category_type': 'home'},
-            {'name': 'AC Repair', 'description': 'Air conditioner service and repair',
-             'image_url': 'https://cdn.pixabay.com/photo/2021/12/14/07/34/worker-6869868_1280.jpg', 'category_type': 'home'},
-            {'name': 'Pest Control', 'description': 'Pest extermination services',
-             'image_url': 'https://cdn.pixabay.com/photo/2020/04/26/04/38/disinfectant-5093503_1280.jpg', 'category_type': 'home'},
-            {'name': 'Painting', 'description': 'Interior and exterior wall painting',
-             'image_url': 'https://cdn.pixabay.com/photo/2017/09/15/10/24/painter-2751662_1280.jpg', 'category_type': 'home'},
-            {'name': 'Appliance Repair', 'description': 'Repair service for home appliances',
-             'image_url': 'https://cdn.pixabay.com/photo/2021/04/29/21/23/laptop-6217523_1280.jpg', 'category_type': 'home'},
-            {'name': 'Water Purifier Service', 'description': 'RO installation and filter replacement',
-             'image_url': 'https://images.unsplash.com/photo-1569373200232-5468a0cdc191?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000', 'category_type': 'home'},
-        ]
-        
-        commercial_services = [
-            {'name': 'Office Cleaning', 'description': 'Professional office cleaning services',
-             'image_url': 'https://cdn.pixabay.com/photo/2016/12/15/20/17/cleaning-1909978_1280.jpg', 'category_type': 'commercial'},
-            {'name': 'Security Services', 'description': '24/7 security and surveillance',
-             'image_url': 'https://cdn.pixabay.com/photo/2017/12/19/20/42/security-3028679_1280.jpg', 'category_type': 'commercial'},
-            {'name': 'Maintenance', 'description': 'Building and facility maintenance',
-             'image_url': 'https://cdn.pixabay.com/photo/2017/03/15/10/32/tools-2145770_1280.jpg', 'category_type': 'commercial'},
-            {'name': 'Catering', 'description': 'Event and corporate catering',
-             'image_url': 'https://cdn.pixabay.com/photo/2019/11/14/11/10/chef-4625935_1280.jpg', 'category_type': 'commercial'},
-            {'name': 'HVAC Maintenance', 'description': 'Commercial HVAC servicing and preventive maintenance',
-             'image_url': 'https://cdn.pixabay.com/photo/2021/12/14/07/34/worker-6869868_1280.jpg', 'category_type': 'commercial'},
-            {'name': 'IT Network Setup', 'description': 'Office networking, CCTV, and system setup',
-             'image_url': 'https://cdn.pixabay.com/photo/2017/07/27/18/46/server-2546330_1280.jpg', 'category_type': 'commercial'},
-            {'name': 'Deep Sanitization', 'description': 'Workplace sanitization and disinfection services',
-             'image_url': 'https://cdn.pixabay.com/photo/2020/04/26/04/38/disinfectant-5093503_1280.jpg', 'category_type': 'commercial'},
-            {'name': 'Commercial Pest Management', 'description': 'Long-term pest management for business facilities',
-             'image_url': 'https://cdn.pixabay.com/photo/2020/04/26/04/38/disinfectant-5093503_1280.jpg', 'category_type': 'commercial'},
-        ]
-        
-        db.service_categories.insert_many(home_services + commercial_services)
-        
-    admin = db.users.find_one({'email': ADMIN_EMAIL})
-    if not admin:
-        db.users.insert_one({
-            'name': 'Admin',
-            'email': ADMIN_EMAIL,
-            'password_hash': generate_password_hash(ADMIN_PASSWORD),
-            'is_admin': True
-        })
+    try:
+        if db.service_categories.count_documents({}) == 0:
+            home_services = [
+                {'name': 'Plumber', 'description': 'Fix leaks, pipe fitting, and plumbing issues', 
+                 'image_url': 'https://cdn.pixabay.com/photo/2017/09/26/11/10/plumber-2788332_1280.jpg', 'category_type': 'home'},
+                {'name': 'Electrician', 'description': 'Electrical repairs and installations',
+                 'image_url': 'https://cdn.pixabay.com/photo/2015/05/01/18/13/electrician-748832_1280.jpg', 'category_type': 'home'},
+                {'name': 'Carpenter', 'description': 'Furniture repair and custom carpentry',
+                 'image_url': 'https://cdn.pixabay.com/photo/2022/04/14/05/54/carpenter-7131654_1280.jpg', 'category_type': 'home'},
+                {'name': 'House Cleaning', 'description': 'Deep cleaning and regular housekeeping',
+                 'image_url': 'https://cdn.pixabay.com/photo/2019/04/02/18/16/cleaning-4098410_1280.jpg', 'category_type': 'home'},
+                {'name': 'AC Repair', 'description': 'Air conditioner service and repair',
+                 'image_url': 'https://cdn.pixabay.com/photo/2021/12/14/07/34/worker-6869868_1280.jpg', 'category_type': 'home'},
+                {'name': 'Pest Control', 'description': 'Pest extermination services',
+                 'image_url': 'https://cdn.pixabay.com/photo/2020/04/26/04/38/disinfectant-5093503_1280.jpg', 'category_type': 'home'},
+                {'name': 'Painting', 'description': 'Interior and exterior wall painting',
+                 'image_url': 'https://cdn.pixabay.com/photo/2017/09/15/10/24/painter-2751662_1280.jpg', 'category_type': 'home'},
+                {'name': 'Appliance Repair', 'description': 'Repair service for home appliances',
+                 'image_url': 'https://cdn.pixabay.com/photo/2021/04/29/21/23/laptop-6217523_1280.jpg', 'category_type': 'home'},
+                {'name': 'Water Purifier Service', 'description': 'RO installation and filter replacement',
+                 'image_url': 'https://images.unsplash.com/photo-1569373200232-5468a0cdc191?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000', 'category_type': 'home'},
+            ]
+            
+            commercial_services = [
+                {'name': 'Office Cleaning', 'description': 'Professional office cleaning services',
+                 'image_url': 'https://cdn.pixabay.com/photo/2016/12/15/20/17/cleaning-1909978_1280.jpg', 'category_type': 'commercial'},
+                {'name': 'Security Services', 'description': '24/7 security and surveillance',
+                 'image_url': 'https://cdn.pixabay.com/photo/2017/12/19/20/42/security-3028679_1280.jpg', 'category_type': 'commercial'},
+                {'name': 'Maintenance', 'description': 'Building and facility maintenance',
+                 'image_url': 'https://cdn.pixabay.com/photo/2017/03/15/10/32/tools-2145770_1280.jpg', 'category_type': 'commercial'},
+                {'name': 'Catering', 'description': 'Event and corporate catering',
+                 'image_url': 'https://cdn.pixabay.com/photo/2019/11/14/11/10/chef-4625935_1280.jpg', 'category_type': 'commercial'},
+                {'name': 'HVAC Maintenance', 'description': 'Commercial HVAC servicing and preventive maintenance',
+                 'image_url': 'https://cdn.pixabay.com/photo/2021/12/14/07/34/worker-6869868_1280.jpg', 'category_type': 'commercial'},
+                {'name': 'IT Network Setup', 'description': 'Office networking, CCTV, and system setup',
+                 'image_url': 'https://cdn.pixabay.com/photo/2017/07/27/18/46/server-2546330_1280.jpg', 'category_type': 'commercial'},
+                {'name': 'Deep Sanitization', 'description': 'Workplace sanitization and disinfection services',
+                 'image_url': 'https://cdn.pixabay.com/photo/2020/04/26/04/38/disinfectant-5093503_1280.jpg', 'category_type': 'commercial'},
+                {'name': 'Commercial Pest Management', 'description': 'Long-term pest management for business facilities',
+                 'image_url': 'https://cdn.pixabay.com/photo/2020/04/26/04/38/disinfectant-5093503_1280.jpg', 'category_type': 'commercial'},
+            ]
+            
+            db.service_categories.insert_many(home_services + commercial_services)
+            
+        admin = db.users.find_one({'email': ADMIN_EMAIL})
+        if not admin:
+            db.users.insert_one({
+                'name': 'Admin',
+                'email': ADMIN_EMAIL,
+                'password_hash': generate_password_hash(ADMIN_PASSWORD),
+                'is_admin': True
+            })
+    except Exception as e:
+        print(f"Error during init_db: {e}")
 
 if __name__ == '__main__':
     try:
