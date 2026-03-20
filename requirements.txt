@@ -13,3 +13,4 @@ Pillow>=10.0.0
 pymongo>=4.6.0
 dnspython>=2.5.0
 certifi>=2024.2.2
+reportlab>=4.2.0

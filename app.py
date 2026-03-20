@@ -3,12 +3,13 @@ Conect Us - Home Services Platform
 Main Flask Application with MongoDB Integration
 """
 
-from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, send_from_directory
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, send_from_directory, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
 import random
 import os
+import io
 import traceback
 from dotenv import load_dotenv
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -21,6 +22,8 @@ from bson.objectid import ObjectId
 import certifi
 from authlib.integrations.flask_client import OAuth
 import requests
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -581,6 +584,96 @@ def update_booking(booking_id, action):
         flash(f'Booking {status_map[action]} successfully!', 'success')
     
     return redirect(url_for('admin_dashboard'))
+
+
+@app.route('/admin/booking_pdf/<booking_id>')
+@login_required
+def booking_pdf(booking_id):
+    if not current_user.is_admin:
+        flash('Access denied', 'error')
+        return redirect(url_for('dashboard'))
+
+    try:
+        bid = ObjectId(booking_id)
+    except:
+        bid = booking_id
+
+    booking = db.booking_requests.find_one({'_id': bid})
+    if not booking:
+        flash('Booking not found', 'error')
+        return redirect(url_for('admin_dashboard'))
+
+    booking = to_dict_with_id(booking)
+
+    buffer = io.BytesIO()
+    pdf = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    y = height - 60
+
+    def write_line(text, font_name="Helvetica", font_size=11, line_gap=18):
+        nonlocal y
+        pdf.setFont(font_name, font_size)
+        for line in wrap_text(str(text), 95):
+            if y < 60:
+                pdf.showPage()
+                pdf.setFont(font_name, font_size)
+                y = height - 60
+            pdf.drawString(50, y, line)
+            y -= line_gap
+
+    def wrap_text(text, max_chars):
+        text = text or ""
+        words = text.split()
+        if not words:
+            return [""]
+        lines = []
+        current = words[0]
+        for word in words[1:]:
+            trial = f"{current} {word}"
+            if len(trial) <= max_chars:
+                current = trial
+            else:
+                lines.append(current)
+                current = word
+        lines.append(current)
+        return lines
+
+    pdf.setTitle(f"booking-{booking['id']}.pdf")
+    write_line("Conect Us Booking Request", "Helvetica-Bold", 18, 24)
+    write_line(f"Request ID: {booking['id']}", "Helvetica-Bold", 12, 20)
+    write_line("")
+    write_line(f"Service: {booking.get('service_name', 'N/A')}")
+    write_line(f"Customer: {booking.get('user_name', 'N/A')}")
+    write_line(f"Email: {booking.get('user_email', 'N/A')}")
+    write_line(f"Phone: {booking.get('user_phone', 'N/A')}")
+    write_line(f"Status: {booking.get('status', 'pending').capitalize()}")
+
+    created_at = booking.get('created_at')
+    if created_at:
+        write_line(f"Created At: {created_at.strftime('%Y-%m-%d %H:%M')}")
+
+    if booking.get('latitude') and booking.get('longitude'):
+        write_line(f"Location: {booking.get('latitude')}, {booking.get('longitude')}")
+    else:
+        write_line("Location: Not shared")
+
+    write_line("")
+    write_line("Address", "Helvetica-Bold", 12, 20)
+    write_line(booking.get('address', 'N/A'))
+    write_line("")
+    write_line("Description", "Helvetica-Bold", 12, 20)
+    write_line(booking.get('description', 'N/A'))
+
+    pdf.showPage()
+    pdf.save()
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f"booking-request-{booking['id']}.pdf"
+    )
 
 def init_db():
     if db is None:

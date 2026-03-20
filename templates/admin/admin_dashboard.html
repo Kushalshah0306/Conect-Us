@@ -159,12 +159,42 @@
         background: #dc3545;
         color: white;
     }
+
+    .btn-pdf {
+        background: #111827;
+        color: white;
+    }
     
     .status-badge {
         padding: 5px 12px;
         border-radius: 15px;
         font-size: 13px;
         font-weight: 600;
+    }
+
+    .text-preview {
+        display: inline;
+    }
+
+    .text-full {
+        display: none;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .text-toggle {
+        background: none;
+        border: none;
+        color: #2563eb;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 0;
+        margin-left: 4px;
+    }
+
+    .text-toggle:hover {
+        text-decoration: underline;
     }
     
     .status-pending { background: #fff3cd; color: #856404; }
@@ -394,7 +424,16 @@
                     <td data-label="Service"><strong>{{ booking.service_name }}</strong></td>
                     <td data-label="Customer">{{ booking.user_name }}<br><small>{{ booking.user_email }}</small></td>
 <td data-label="Phone">{{ booking.user_phone }}</td>
-                    <td data-label="Address">{{ booking.address[:30] }}...</td>
+                    <td data-label="Address">
+                        {% set address_text = booking.address or 'N/A' %}
+                        {% if address_text|length > 30 %}
+                        <span class="text-preview">{{ address_text[:30] }}...</span>
+                        <span class="text-full">{{ address_text }}</span>
+                        <button type="button" class="text-toggle" onclick="toggleText(this)">more</button>
+                        {% else %}
+                        <span class="text-full" style="display: inline;">{{ address_text }}</span>
+                        {% endif %}
+                    </td>
                     <td data-label="Location">
                         {% if booking.latitude and booking.longitude %}
                         <a href="https://www.google.com/maps?q={{ booking.latitude }},{{ booking.longitude }}" target="_blank" style="color: #007bff; text-decoration: none; font-size: 13px;">
@@ -404,7 +443,16 @@
                         <span style="color: #999; font-size: 13px;">Not shared</span>
                         {% endif %}
                     </td>
-                    <td data-label="Description">{{ booking.description[:50] if booking.description else 'N/A' }}...</td>
+                    <td data-label="Description">
+                        {% set desc_text = booking.description or 'N/A' %}
+                        {% if desc_text|length > 50 %}
+                        <span class="text-preview">{{ desc_text[:50] }}...</span>
+                        <span class="text-full">{{ desc_text }}</span>
+                        <button type="button" class="text-toggle" onclick="toggleText(this)">more</button>
+                        {% else %}
+                        <span class="text-full" style="display: inline;">{{ desc_text }}</span>
+                        {% endif %}
+                    </td>
                     <td data-label="Date">{{ booking.created_at.strftime('%Y-%m-%d') }}</td>
                     <td data-label="Status" id="status-cell-{{ booking.id }}"><span class="status-badge status-{{ booking.status }}">{{ booking.status|capitalize }}</span></td>
                     <td data-label="Actions">
@@ -424,6 +472,9 @@
                                 <i class="fas fa-times"></i> Reject
                             </button>
                             {% endif %}
+                            <a href="{{ url_for('booking_pdf', booking_id=booking.id) }}" class="btn-action btn-pdf">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
                         </div>
                     </td>
                 </tr>
@@ -444,6 +495,23 @@
 
 {% block extra_js %}
 <script>
+    function toggleText(button) {
+        const cell = button.parentElement;
+        const preview = cell.querySelector('.text-preview');
+        const full = cell.querySelector('.text-full');
+        const expanded = full.style.display === 'inline';
+
+        if (expanded) {
+            full.style.display = 'none';
+            if (preview) preview.style.display = 'inline';
+            button.textContent = 'more';
+        } else {
+            full.style.display = 'inline';
+            if (preview) preview.style.display = 'none';
+            button.textContent = 'less';
+        }
+    }
+
     function updateBooking(bookingId, action) {
         const btnContainer = document.getElementById('actions-' + bookingId);
         const statusCell = document.getElementById('status-cell-' + bookingId);
@@ -479,9 +547,18 @@
                             </button>
                             <button onclick="updateBooking('${bookingId}', 'cancel')" class="btn-action btn-cancel">
                                 <i class="fas fa-times"></i> Reject
-                            </button>`;
+                            </button>
+                            <a href="/admin/booking_pdf/${bookingId}" class="btn-action btn-pdf">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>`;
+                } else if (newStatus === 'cancelled' || newStatus === 'completed') {
+                    newActions = `<a href="/admin/booking_pdf/${bookingId}" class="btn-action btn-pdf">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>`;
                 } else {
-                    newActions = `<span style="color: #999; font-size: 13px;">No actions</span>`;
+                    newActions = `<a href="/admin/booking_pdf/${bookingId}" class="btn-action btn-pdf">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>`;
                 }
                 btnContainer.innerHTML = newActions;
             } else {
