@@ -4,6 +4,34 @@
 
 {% block extra_css %}
 <style>
+    .admin-top-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .admin-nav-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 24px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 2px solid transparent;
+        color: white !important;
+    }
+
+    .admin-nav-btn.primary {
+        background: #ff6b35;
+    }
+
+    .admin-nav-btn.outline {
+        border-color: rgba(255, 255, 255, 0.9);
+        background: transparent;
+    }
+
     .admin-header {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         padding: 30px 50px;
@@ -66,12 +94,14 @@
         width: 100%;
         background: white;
         border-radius: 15px;
-        overflow: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
         box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     }
     
     .booking-table table {
         width: 100%;
+        min-width: 1240px;
         border-collapse: collapse;
     }
     
@@ -142,6 +172,42 @@
     .status-completed { background: #cce5ff; color: #004085; }
     .status-cancelled { background: #f8d7da; color: #721c24; }
 
+    @media (max-width: 1280px) {
+        .booking-table th,
+        .booking-table td {
+            padding: 14px 12px;
+            font-size: 14px;
+        }
+
+        .booking-table table {
+            min-width: 1160px;
+        }
+
+        .btn-action {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .admin-header {
+            padding: 24px 22px;
+        }
+
+        .admin-stats {
+            padding: 28px 22px;
+            gap: 16px;
+        }
+
+        .bookings-section {
+            padding: 0 22px 32px;
+        }
+
+        .section-title {
+            font-size: 24px;
+        }
+    }
+
     @media (max-width: 768px) {
         .admin-header {
             padding: 22px 16px;
@@ -154,14 +220,14 @@
             font-size: 26px;
         }
 
-        .admin-header > div:last-child {
+        .admin-top-actions {
             width: 100%;
-            display: grid !important;
+            display: grid;
             grid-template-columns: 1fr;
-            gap: 10px !important;
+            gap: 10px;
         }
 
-        .admin-header > div:last-child a {
+        .admin-nav-btn {
             text-align: center;
             width: 100%;
         }
@@ -271,11 +337,11 @@
         <h1><i class="fas fa-user-shield"></i> Admin Dashboard</h1>
         <p>Manage all service requests</p>
     </div>
-    <div style="display: flex; gap: 15px;">
-        <a href="{{ url_for('client_activities') }}" style="background: #ff6b35; color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none;">
+    <div class="admin-top-actions">
+        <a href="{{ url_for('client_activities') }}" class="admin-nav-btn primary">
             <i class="fas fa-users"></i> Client Activities
         </a>
-        <a href="{{ url_for('logout') }}" class="btn btn-outline" style="border: 2px solid white; color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none;">
+        <a href="{{ url_for('logout') }}" class="admin-nav-btn outline">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </div>
