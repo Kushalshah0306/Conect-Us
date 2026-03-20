@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Conect Us{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 30px 50px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .admin-header h1 {
+        font-size: 32px;
+    }
+    
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        padding: 40px 50px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .stat-card h3 {
+        font-size: 16px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .stat-card .number {
+        font-size: 36px;
+        font-weight: bold;
+        color: #1a1a2e;
+    }
+    
+    .stat-card.pending { border-left: 4px solid #ffc107; }
+    .stat-card.accepted { border-left: 4px solid #28a745; }
+    .stat-card.completed { border-left: 4px solid #007bff; }
+    .stat-card.cancelled { border-left: 4px solid #dc3545; }
+    
+    .bookings-section {
+        padding: 0 50px 50px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .section-title {
+        font-size: 28px;
+        color: #1a1a2e;
+        margin-bottom: 25px;
+    }
+    
+    .booking-table {
+        width: 100%;
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .booking-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .booking-table th {
+        background: #1a1a2e;
+        color: white;
+        padding: 18px;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    .booking-table td {
+        padding: 15px 18px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .booking-table tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .action-btns {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-action {
+        padding: 8px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .btn-accept {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-complete {
+        background: #007bff;
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .status-badge {
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-accepted { background: #d4edda; color: #155724; }
+    .status-completed { background: #cce5ff; color: #004085; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<div class="admin-header">
+    <div>
+        <h1><i class="fas fa-user-shield"></i> Admin Dashboard</h1>
+        <p>Manage all service requests</p>
+    </div>
+    <div style="display: flex; gap: 15px;">
+        <a href="{{ url_for('client_activities') }}" style="background: #ff6b35; color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none;">
+            <i class="fas fa-users"></i> Client Activities
+        </a>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline" style="border: 2px solid white; color: white; padding: 10px 25px; border-radius: 25px; text-decoration: none;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="admin-stats">
+    <div class="stat-card pending">
+        <h3>Pending Requests</h3>
+        <div class="number">{{ bookings|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+    </div>
+    <div class="stat-card accepted">
+        <h3>Accepted</h3>
+        <div class="number">{{ bookings|selectattr('status', 'equalto', 'accepted')|list|length }}</div>
+    </div>
+    <div class="stat-card completed">
+        <h3>Completed</h3>
+        <div class="number">{{ bookings|selectattr('status', 'equalto', 'completed')|list|length }}</div>
+    </div>
+    <div class="stat-card cancelled">
+        <h3>Cancelled</h3>
+        <div class="number">{{ bookings|selectattr('status', 'equalto', 'cancelled')|list|length }}</div>
+    </div>
+</div>
+
+<!-- Bookings Table -->
+<div class="bookings-section">
+    <h2 class="section-title"><i class="fas fa-list"></i> All Service Requests</h2>
+    
+    <div class="booking-table">
+        <table>
+<thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service</th>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>Address</th>
+                    <th>Location</th>
+                    <th>Description</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>#{{ booking.id }}</td>
+                    <td><strong>{{ booking.service_name }}</strong></td>
+                    <td>{{ booking.user_name }}<br><small>{{ booking.user_email }}</small></td>
+<td>{{ booking.user_phone }}</td>
+                    <td>{{ booking.address[:30] }}...</td>
+                    <td>
+                        {% if booking.latitude and booking.longitude %}
+                        <a href="https://www.google.com/maps?q={{ booking.latitude }},{{ booking.longitude }}" target="_blank" style="color: #007bff; text-decoration: none; font-size: 13px;">
+                            <i class="fas fa-map-marker-alt"></i> View Location
+                        </a>
+                        {% else %}
+                        <span style="color: #999; font-size: 13px;">Not shared</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ booking.description[:50] if booking.description else 'N/A' }}...</td>
+                    <td>{{ booking.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td><span class="status-badge status-{{ booking.status }}">{{ booking.status|capitalize }}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            {% if booking.status == 'pending' %}
+                            <a href="{{ url_for('update_booking', booking_id=booking.id, action='accept') }}" class="btn-action btn-accept">
+                                <i class="fas fa-check"></i> Accept
+                            </a>
+                            {% endif %}
+                            {% if booking.status == 'accepted' %}
+                            <a href="{{ url_for('update_booking', booking_id=booking.id, action='complete') }}" class="btn-action btn-complete">
+                                <i class="fas fa-check-double"></i> Complete
+                            </a>
+                            {% endif %}
+                            {% if booking.status != 'cancelled' and booking.status != 'completed' %}
+                            <a href="{{ url_for('update_booking', booking_id=booking.id, action='cancel') }}" class="btn-action btn-cancel">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if not bookings %}
+    <div style="text-align: center; padding: 60px; background: white; border-radius: 15px;">
+        <i class="fas fa-inbox" style="font-size: 60px; color: #ccc; margin-bottom: 20px;"></i>
+        <h3 style="color: #666;">No Bookings Yet</h3>
+        <p style="color: #999;">Service requests will appear here when users book services.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+{% block title %}Client Activities - Conect Us{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 30px 50px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .admin-header h1 {
+        font-size: 32px;
+    }
+    
+    .admin-nav {
+        display: flex;
+        gap: 15px;
+    }
+    
+    .nav-btn {
+        padding: 10px 20px;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .nav-btn-primary {
+        background: #ff6b35;
+        color: white;
+    }
+    
+    .nav-btn-outline {
+        border: 2px solid white;
+        color: white;
+    }
+    
+    .nav-btn:hover {
+        transform: translateY(-2px);
+    }
+    
+    .admin-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 25px;
+        padding: 40px 50px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+    
+    .stat-card h3 {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+    }
+    
+    .stat-card .number {
+        font-size: 36px;
+        font-weight: bold;
+        color: #1a1a2e;
+    }
+    
+    .stat-card.clients { border-top: 4px solid #17a2b8; }
+    .stat-card.bookings { border-top: 4px solid #ff6b35; }
+    .stat-card.pending { border-top: 4px solid #ffc107; }
+    .stat-card.completed { border-top: 4px solid #28a745; }
+    
+    .content-section {
+        padding: 0 50px 50px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .section-title {
+        font-size: 24px;
+        color: #1a1a2e;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .clients-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+    }
+    
+    .client-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .client-card-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .client-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    
+    .client-info h4 {
+        margin: 0;
+        color: #1a1a2e;
+        font-size: 18px;
+    }
+    
+    .client-info p {
+        margin: 5px 0 0;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .client-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+    
+    .client-stat {
+        text-align: center;
+    }
+    
+    .client-stat .count {
+        font-size: 20px;
+        font-weight: bold;
+        color: #1a1a2e;
+    }
+    
+    .client-stat .label {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .recent-activity {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+    
+    .recent-activity h5 {
+        margin: 0 0 10px;
+        color: #1a1a2e;
+        font-size: 14px;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        font-size: 13px;
+    }
+    
+    .activity-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+    }
+    
+    .activity-pending { background: #fff3cd; color: #856404; }
+    .activity-accepted { background: #d4edda; color: #155724; }
+    .activity-completed { background: #cce5ff; color: #004085; }
+    .activity-cancelled { background: #f8d7da; color: #721c24; }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        background: white;
+        border-radius: 15px;
+    }
+    
+    .empty-state i {
+        font-size: 60px;
+        color: #ccc;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<div class="admin-header">
+    <div>
+        <h1><i class="fas fa-users"></i> Client Activities</h1>
+        <p>Monitor all client bookings and activities</p>
+    </div>
+    <div class="admin-nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-btn nav-btn-outline">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="{{ url_for('logout') }}" class="nav-btn nav-btn-outline">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="admin-stats">
+    <div class="stat-card clients">
+        <h3>Total Clients</h3>
+        <div class="number">{{ total_clients }}</div>
+    </div>
+    <div class="stat-card bookings">
+        <h3>Total Bookings</h3>
+        <div class="number">{{ total_bookings }}</div>
+    </div>
+    <div class="stat-card pending">
+        <h3>Pending</h3>
+        <div class="number">{{ pending_bookings }}</div>
+    </div>
+    <div class="stat-card completed">
+        <h3>Completed</h3>
+        <div class="number">{{ completed_bookings }}</div>
+    </div>
+</div>
+
+<!-- Client Activities -->
+<div class="content-section">
+    <h2 class="section-title">
+        <i class="fas fa-user-circle"></i> All Clients & Their Bookings
+    </h2>
+    
+    {% if clients %}
+    <div class="clients-grid">
+        {% for client in clients %}
+        <div class="client-card">
+            <div class="client-card-header">
+                <div class="client-avatar">{{ client.name[0]|upper }}</div>
+                <div class="client-info">
+                    <h4>{{ client.name }}</h4>
+                    <p>{{ client.email }}</p>
+                    <p>{{ client.phone }}</p>
+                </div>
+            </div>
+            
+            {% set client_bookings = bookings|selectattr('user_id', 'equalto', client.id)|list %}
+            <div class="client-stats">
+                <div class="client-stat">
+                    <div class="count">{{ client_bookings|length }}</div>
+                    <div class="label">Bookings</div>
+                </div>
+                <div class="client-stat">
+                    <div class="count">{{ client_bookings|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+                    <div class="label">Pending</div>
+                </div>
+                <div class="client-stat">
+                    <div class="count">{{ client_bookings|selectattr('status', 'equalto', 'completed')|list|length }}</div>
+                    <div class="label">Completed</div>
+                </div>
+            </div>
+            
+            {% if client_bookings %}
+            <div class="recent-activity">
+                <h5>Recent Activities</h5>
+                {% for booking in client_bookings[:3] %}
+                <div class="activity-item">
+                    <div class="activity-icon activity-{{ booking.status }}">
+                        {% if booking.status == 'pending' %}
+                        <i class="fas fa-clock"></i>
+                        {% elif booking.status == 'accepted' %}
+                        <i class="fas fa-check"></i>
+                        {% elif booking.status == 'completed' %}
+                        <i class="fas fa-check-double"></i>
+                        {% else %}
+                        <i class="fas fa-times"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <strong>{{ booking.service_name }}</strong>
+                        <span style="color: #666;">- {{ booking.status|capitalize }}</span>
+                        <br>
+                        <small style="color: #999;">{{ booking.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-users"></i>
+        <h3 style="color: #666;">No Clients Yet</h3>
+        <p style="color: #999;">Client registrations will appear here.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
