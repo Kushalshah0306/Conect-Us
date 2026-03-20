@@ -96,6 +96,7 @@
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
+        align-items: center;
     }
     
     .btn-action {
@@ -107,6 +108,11 @@
         border: none;
         cursor: pointer;
         white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex: 0 1 auto;
     }
     
     .btn-accept {
@@ -233,15 +239,20 @@
         }
 
         .action-btns {
-            display: grid;
-            grid-template-columns: 1fr;
+            display: flex;
+            flex-wrap: nowrap;
             gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .btn-action {
-            width: 100%;
-            padding: 10px 14px;
+            min-width: 0;
+            flex: 1 1 0;
+            padding: 10px 12px;
             text-align: center;
+            font-size: 12px;
         }
     }
 
