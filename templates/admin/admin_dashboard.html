@@ -95,6 +95,7 @@
     .action-btns {
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
     }
     
     .btn-action {
@@ -105,6 +106,7 @@
         font-weight: 600;
         border: none;
         cursor: pointer;
+        white-space: nowrap;
     }
     
     .btn-accept {
@@ -133,6 +135,121 @@
     .status-accepted { background: #d4edda; color: #155724; }
     .status-completed { background: #cce5ff; color: #004085; }
     .status-cancelled { background: #f8d7da; color: #721c24; }
+
+    @media (max-width: 768px) {
+        .admin-header {
+            padding: 22px 16px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .admin-header h1 {
+            font-size: 26px;
+        }
+
+        .admin-header > div:last-child {
+            width: 100%;
+            display: grid !important;
+            grid-template-columns: 1fr;
+            gap: 10px !important;
+        }
+
+        .admin-header > div:last-child a {
+            text-align: center;
+            width: 100%;
+        }
+
+        .admin-stats {
+            padding: 18px 12px;
+            gap: 12px;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-card {
+            padding: 18px;
+        }
+
+        .stat-card .number {
+            font-size: 28px;
+        }
+
+        .bookings-section {
+            padding: 0 12px 24px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+
+        .booking-table {
+            background: transparent;
+            box-shadow: none;
+            overflow: visible;
+        }
+
+        .booking-table table,
+        .booking-table thead,
+        .booking-table tbody,
+        .booking-table tr,
+        .booking-table th,
+        .booking-table td {
+            display: block;
+            width: 100%;
+        }
+
+        .booking-table thead {
+            display: none;
+        }
+
+        .booking-table tr {
+            margin-bottom: 14px;
+            padding: 16px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+        }
+
+        .booking-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid #eef1f6;
+        }
+
+        .booking-table td:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .booking-table td::before {
+            content: attr(data-label);
+            display: block;
+            margin-bottom: 4px;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .action-btns {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .btn-action {
+            width: 100%;
+            padding: 10px 14px;
+            text-align: center;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .admin-stats {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -196,12 +313,12 @@
             <tbody>
                 {% for booking in bookings %}
                 <tr>
-                    <td>#{{ booking.id }}</td>
-                    <td><strong>{{ booking.service_name }}</strong></td>
-                    <td>{{ booking.user_name }}<br><small>{{ booking.user_email }}</small></td>
-<td>{{ booking.user_phone }}</td>
-                    <td>{{ booking.address[:30] }}...</td>
-                    <td>
+                    <td data-label="ID">#{{ booking.id }}</td>
+                    <td data-label="Service"><strong>{{ booking.service_name }}</strong></td>
+                    <td data-label="Customer">{{ booking.user_name }}<br><small>{{ booking.user_email }}</small></td>
+<td data-label="Phone">{{ booking.user_phone }}</td>
+                    <td data-label="Address">{{ booking.address[:30] }}...</td>
+                    <td data-label="Location">
                         {% if booking.latitude and booking.longitude %}
                         <a href="https://www.google.com/maps?q={{ booking.latitude }},{{ booking.longitude }}" target="_blank" style="color: #007bff; text-decoration: none; font-size: 13px;">
                             <i class="fas fa-map-marker-alt"></i> View Location
@@ -210,10 +327,10 @@
                         <span style="color: #999; font-size: 13px;">Not shared</span>
                         {% endif %}
                     </td>
-                    <td>{{ booking.description[:50] if booking.description else 'N/A' }}...</td>
-                    <td>{{ booking.created_at.strftime('%Y-%m-%d') }}</td>
-                    <td id="status-cell-{{ booking.id }}"><span class="status-badge status-{{ booking.status }}">{{ booking.status|capitalize }}</span></td>
-                    <td>
+                    <td data-label="Description">{{ booking.description[:50] if booking.description else 'N/A' }}...</td>
+                    <td data-label="Date">{{ booking.created_at.strftime('%Y-%m-%d') }}</td>
+                    <td data-label="Status" id="status-cell-{{ booking.id }}"><span class="status-badge status-{{ booking.status }}">{{ booking.status|capitalize }}</span></td>
+                    <td data-label="Actions">
                         <div class="action-btns" id="actions-{{ booking.id }}">
                             {% if booking.status == 'pending' %}
                             <button onclick="updateBooking('{{ booking.id }}', 'accept')" class="btn-action btn-accept">
@@ -227,7 +344,7 @@
                             {% endif %}
                             {% if booking.status != 'cancelled' and booking.status != 'completed' %}
                             <button onclick="updateBooking('{{ booking.id }}', 'cancel')" class="btn-action btn-cancel">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> Reject
                             </button>
                             {% endif %}
                         </div>
@@ -284,7 +401,7 @@
                                 <i class="fas fa-check-double"></i> Complete
                             </button>
                             <button onclick="updateBooking('${bookingId}', 'cancel')" class="btn-action btn-cancel">
-                                <i class="fas fa-times"></i> Cancel
+                                <i class="fas fa-times"></i> Reject
                             </button>`;
                 } else {
                     newActions = `<span style="color: #999; font-size: 13px;">No actions</span>`;
