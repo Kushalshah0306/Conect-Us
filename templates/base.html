@@ -65,6 +65,11 @@
                 <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
                 <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a>
                 <a href="{{ url_for('signup') }}" class="side-signup-btn">Sign Up</a>
+                <div id="pwa-install-container" style="display: none; padding: 10px; margin-top: 10px; border-top: 1px solid #eee;">
+                    <button id="pwa-install-btn" style="width: 100%; padding: 12px; background: #111827; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-download"></i> Install Conect Us
+                    </button>
+                </div>
             {% endif %}
         </nav>
     </div>
@@ -210,14 +215,36 @@
             if (e.key === 'Enter') unlockBtn.click();
         });
 
-        // Register Service Worker for PWA
+        // PWA & Sidebar
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(reg => {
-                    console.log('SW Registered');
-                }).catch(err => {
-                    console.log('SW fail', err);
-                });
+                navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW Registered'))
+                .catch(err => console.log('SW Error', err));
+            });
+        }
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installContainer = document.getElementById('pwa-install-container');
+        const installBtn = document.getElementById('pwa-install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installContainer) installContainer.style.display = 'block';
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installContainer.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                }
             });
         }
 
