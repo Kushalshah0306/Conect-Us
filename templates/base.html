@@ -13,7 +13,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Conect Us">
-    <link rel="apple-touch-icon" href="/static/img/logo.png">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/icon-192.png') }}">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -66,9 +66,9 @@
                 <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
                 <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a>
                 <a href="{{ url_for('signup') }}" class="side-signup-btn">Sign Up</a>
-                <div id="pwa-install-container" style="display: none; padding: 10px; margin-top: 10px; border-top: 1px solid #eee;">
-                    <button id="pwa-install-btn" style="width: 100%; padding: 12px; background: #111827; color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-download"></i> Install Conect Us
+                <div id="pwa-install-container" style="display: none; padding: 15px; margin-top: 10px; border-top: 1px solid #eee;">
+                    <button id="pwa-install-btn" style="width: 100%; padding: 14px; background: #111827; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <i class="fas fa-cloud-arrow-down" style="font-size: 18px;"></i> Install App
                     </button>
                 </div>
             {% endif %}
@@ -220,7 +220,18 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                .then(reg => console.log('SW Registered'))
+                .then(reg => {
+                    console.log('SW Registered');
+                    // Check for updates
+                    reg.onupdatefound = () => {
+                        const installingWorker = reg.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('New content available; please refresh.');
+                            }
+                        };
+                    };
+                })
                 .catch(err => console.log('SW Error', err));
             });
         }

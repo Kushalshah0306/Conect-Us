@@ -6,7 +6,10 @@
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#111827",
@@ -24,11 +27,15 @@
       "purpose": "any"
     },
     {
-        "src": "/static/img/icon-192.png",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "maskable"
+      "src": "/static/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["home", "business", "utilities"]
+  "categories": [
+    "home",
+    "business",
+    "utilities"
+  ]
 }
