@@ -6,6 +6,14 @@
     <title>{% block title %}Conect Us - Home Services{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ff6b35">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/static/img/logo.png">
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -28,8 +36,39 @@
                     <a href="{{ url_for('signup') }}" class="btn btn-signup-gray">Sign Up</a>
                 {% endif %}
             </nav>
+
+            <button id="mobile-menu-btn" class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
     </header>
+
+    <!-- Mobile Sidebar -->
+    <div id="side-menu" class="side-menu">
+        <div class="side-menu-header">
+            <a href="{{ url_for('index') }}" class="brand">
+                <span class="brand-mark">C</span>
+                <span class="brand-text">Conect Us</span>
+            </a>
+            <button id="close-menu" class="close-menu">&times;</button>
+        </div>
+        <nav class="side-nav-links">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}"><i class="fas fa-home"></i> Home</a>
+                <a href="{{ url_for('my_bookings') }}"><i class="fas fa-calendar-check"></i> My Bookings</a>
+                <div class="side-user-info">
+                    <i class="fas fa-user-circle"></i>
+                    <span>{{ current_user.name }}</span>
+                </div>
+                <a href="{{ url_for('logout') }}" class="side-logout-btn">Logout</a>
+            {% else %}
+                <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
+                <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="{{ url_for('signup') }}" class="side-signup-btn">Sign Up</a>
+            {% endif %}
+        </nav>
+    </div>
+    <div id="side-menu-overlay" class="side-menu-overlay"></div>
 
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -103,17 +142,28 @@
 
         if (brandLogo) {
             brandLogo.addEventListener('click', function(e) {
+                e.preventDefault(); // Always prevent to avoid refresh during sequence
+                
                 const now = Date.now();
-                if (now - lastClickTime > 2000) logoClicks = 0; // Reset if gap > 2s
+                if (now - lastClickTime > 1500) logoClicks = 0; // Reset if gap > 1.5s
                 
                 logoClicks++;
                 lastClickTime = now;
 
                 if (logoClicks >= 6) {
-                    e.preventDefault();
+                    if (this.clickTimeout) clearTimeout(this.clickTimeout);
                     locker.style.display = 'flex';
                     pinInput.focus();
                     logoClicks = 0;
+                } else {
+                    // Start a timer. If it's just a single click and no follow up, redirect normally
+                    if (this.clickTimeout) clearTimeout(this.clickTimeout);
+                    this.clickTimeout = setTimeout(() => {
+                        if (logoClicks > 0 && logoClicks < 6) {
+                            window.location.href = brandLogo.href;
+                            logoClicks = 0;
+                        }
+                    }, 800); // Increased to 800ms for more forgiving click speed
                 }
             });
         }
@@ -159,6 +209,34 @@
         pinInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') unlockBtn.click();
         });
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('SW Registered');
+                }).catch(err => {
+                    console.log('SW fail', err);
+                });
+            });
+        }
+
+        // Mobile Menu Toggle
+        const sideMenu = document.getElementById('side-menu');
+        const overlay = document.getElementById('side-menu-overlay');
+        const openBtn = document.getElementById('mobile-menu-btn');
+        const closeBtn = document.getElementById('close-menu');
+
+        function toggleMenu() {
+            if (!sideMenu || !overlay) return;
+            sideMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.style.overflow = sideMenu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        if (openBtn) openBtn.addEventListener('click', toggleMenu);
+        if (closeBtn) closeBtn.addEventListener('click', toggleMenu);
+        if (overlay) overlay.addEventListener('click', toggleMenu);
     </script>
     {% block extra_js %}{% endblock %}
 </body>

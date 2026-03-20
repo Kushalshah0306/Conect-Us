@@ -3,7 +3,7 @@ Conect Us - Home Services Platform
 Main Flask Application with MongoDB Integration
 """
 
-from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify
+from flask import Flask, render_template, redirect, url_for, request, flash, session, jsonify, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
@@ -116,19 +116,37 @@ def to_dict_with_id(doc):
 
 # Routes
 
+# PWA Configuration Routes
+@app.route('/sw.js')
+def sw():
+    return send_from_directory('static', 'sw.js', mimetype='application/javascript')
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('static', 'manifest.json', mimetype='application/json')
+
+
 @app.route('/')
 def index():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
-    return render_template('index.html')
+    
+    if db is None:
+        return render_template('index.html', home_services=[], commercial_services=[])
+        
+    try:
+        home_services = [to_dict_with_id(d) for d in db.service_categories.find({'category_type': 'home'})]
+        commercial_services = [to_dict_with_id(d) for d in db.service_categories.find({'category_type': 'commercial'})]
+    except:
+        home_services = []
+        commercial_services = []
+        
+    return render_template('index.html', home_services=home_services, commercial_services=commercial_services)
 
-@app.route('/favicon.ico')
-def favicon():
-    return '', 204
 
 @app.route('/home')
 def home():
-    return render_template('index.html')
+    return redirect(url_for('index'))
 
 @app.route('/dashboard')
 @login_required
@@ -418,7 +436,6 @@ def logout():
 
 
 @app.route('/service/<service_id>')
-@login_required
 def service_detail(service_id):
     try:
         sid = ObjectId(service_id)
@@ -559,6 +576,8 @@ def update_booking(booking_id, action):
     
     if action in status_map:
         db.booking_requests.update_one({'_id': bid}, {'$set': {'status': status_map[action]}})
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.args.get('ajax') == '1':
+            return jsonify({'success': True, 'message': f'Booking {status_map[action]}'})
         flash(f'Booking {status_map[action]} successfully!', 'success')
     
     return redirect(url_for('admin_dashboard'))

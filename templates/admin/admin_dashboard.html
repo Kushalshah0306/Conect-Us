@@ -212,23 +212,23 @@
                     </td>
                     <td>{{ booking.description[:50] if booking.description else 'N/A' }}...</td>
                     <td>{{ booking.created_at.strftime('%Y-%m-%d') }}</td>
-                    <td><span class="status-badge status-{{ booking.status }}">{{ booking.status|capitalize }}</span></td>
+                    <td id="status-cell-{{ booking.id }}"><span class="status-badge status-{{ booking.status }}">{{ booking.status|capitalize }}</span></td>
                     <td>
-                        <div class="action-btns">
+                        <div class="action-btns" id="actions-{{ booking.id }}">
                             {% if booking.status == 'pending' %}
-                            <a href="{{ url_for('update_booking', booking_id=booking.id, action='accept') }}" class="btn-action btn-accept">
+                            <button onclick="updateBooking('{{ booking.id }}', 'accept')" class="btn-action btn-accept">
                                 <i class="fas fa-check"></i> Accept
-                            </a>
+                            </button>
                             {% endif %}
                             {% if booking.status == 'accepted' %}
-                            <a href="{{ url_for('update_booking', booking_id=booking.id, action='complete') }}" class="btn-action btn-complete">
+                            <button onclick="updateBooking('{{ booking.id }}', 'complete')" class="btn-action btn-complete">
                                 <i class="fas fa-check-double"></i> Complete
-                            </a>
+                            </button>
                             {% endif %}
                             {% if booking.status != 'cancelled' and booking.status != 'completed' %}
-                            <a href="{{ url_for('update_booking', booking_id=booking.id, action='cancel') }}" class="btn-action btn-cancel">
+                            <button onclick="updateBooking('{{ booking.id }}', 'cancel')" class="btn-action btn-cancel">
                                 <i class="fas fa-times"></i> Cancel
-                            </a>
+                            </button>
                             {% endif %}
                         </div>
                     </td>
@@ -246,4 +246,60 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updateBooking(bookingId, action) {
+        const btnContainer = document.getElementById('actions-' + bookingId);
+        const statusCell = document.getElementById('status-cell-' + bookingId);
+        
+        // Visual feedback
+        const oldContent = btnContainer.innerHTML;
+        btnContainer.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        fetch(`/admin/update_booking/${bookingId}/${action}?ajax=1`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Success: Update the row without refresh
+                const statusMap = {
+                    'accept': 'accepted',
+                    'complete': 'completed',
+                    'cancel': 'cancelled'
+                };
+                const newStatus = statusMap[action];
+                
+                // Update Badge
+                statusCell.innerHTML = `<span class="status-badge status-${newStatus}">${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}</span>`;
+                
+                // Update Actions (Re-render the logic that would have been server-side)
+                let newActions = '';
+                if (newStatus === 'accepted') {
+                    newActions = `<button onclick="updateBooking('${bookingId}', 'complete')" class="btn-action btn-complete">
+                                <i class="fas fa-check-double"></i> Complete
+                            </button>
+                            <button onclick="updateBooking('${bookingId}', 'cancel')" class="btn-action btn-cancel">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>`;
+                } else {
+                    newActions = `<span style="color: #999; font-size: 13px;">No actions</span>`;
+                }
+                btnContainer.innerHTML = newActions;
+            } else {
+                alert('Update failed: ' + (data.message || 'Unknown error'));
+                btnContainer.innerHTML = oldContent;
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Connection error');
+            btnContainer.innerHTML = oldContent;
+        });
+    }
+</script>
 {% endblock %}
