@@ -9,7 +9,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta, timezone
 import random
 import os
+import traceback
 from dotenv import load_dotenv
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Load environment variables
 load_dotenv()
@@ -22,8 +24,15 @@ import requests
 
 # Initialize Flask app
 app = Flask(__name__)
+# Fix for Vercel/Proxy to use https and correct host in url_for
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'conect-us-secret-key-change-in-production')
 app.config['SECRET_KEY'] = SECRET_KEY
+# Ensure sessions work well on Vercel/HTTPS
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Setup MongoDB Connection
 MONGO_URI = os.environ.get('MONGO_URI')
@@ -124,8 +133,17 @@ def home():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    home_services = [to_dict_with_id(d) for d in db.service_categories.find({'category_type': 'home'})]
-    commercial_services = [to_dict_with_id(d) for d in db.service_categories.find({'category_type': 'commercial'})]
+    if db is None:
+        flash("Database connection is down. Please try again later.", "error")
+        return redirect(url_for('index'))
+    try:
+        home_services = [to_dict_with_id(d) for d in db.service_categories.find({'category_type': 'home'})]
+        commercial_services = [to_dict_with_id(d) for d in db.service_categories.find({'category_type': 'commercial'})]
+    except Exception as e:
+        print(f"DB Error: {e}")
+        flash("Could not load services. Check DB connection.", "error")
+        return redirect(url_for('index'))
+        
     return render_template('dashboard.html', 
                            home_services=home_services, 
                            commercial_services=commercial_services)
@@ -138,10 +156,19 @@ def login():
         return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
+        if db is None:
+            flash("Database connection error. Try again later.", "error")
+            return render_template('login.html')
+            
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password')
         
-        user_data = db.users.find_one({'email': email})
+        try:
+            user_data = db.users.find_one({'email': email})
+        except Exception as e:
+            print(f"Login DB error: {e}")
+            flash("Service unavailable. Try again later.", "error")
+            return render_template('login.html')
         
         if user_data and check_password_hash(user_data.get('password_hash', ''), password):
             user = User(user_data)
@@ -168,6 +195,9 @@ def signup():
 @app.route('/send_otp', methods=['POST'])
 def send_otp():
     if request.method == 'POST':
+        if db is None:
+            return jsonify({'success': False, 'message': 'Database connection error. Try again later.'})
+            
         name = request.form.get('name')
         email = request.form.get('email', '').strip().lower()
         phone = request.form.get('phone')
@@ -176,28 +206,32 @@ def send_otp():
         if email == ADMIN_EMAIL:
             return jsonify({'success': False, 'message': 'This email is reserved and cannot be used for signup'})
         
-        if db.users.find_one({'email': email}):
-            return jsonify({'success': False, 'message': 'Email already registered'})
-        
-        # Remove any pending OTPs for this email to avoid duplicates
-        db.otp_verifications.delete_many({'email': email})
-        
-        otp_code = str(random.randint(100000, 999999))
-        expires_at = datetime.now(timezone.utc) + timedelta(minutes=5)
-        
-        hashed_password = generate_password_hash(password)
-        
-        db.otp_verifications.insert_one({
-            'email': email,
-            'otp_code': otp_code,
-            'name': name,
-            'phone': phone,
-            'password_hash': hashed_password,
-            'is_admin': False,
-            'created_at': datetime.now(timezone.utc),
-            'expires_at': expires_at,
-            'is_verified': False
-        })
+        try:
+            if db.users.find_one({'email': email}):
+                return jsonify({'success': False, 'message': 'Email already registered'})
+            
+            # Remove any pending OTPs for this email to avoid duplicates
+            db.otp_verifications.delete_many({'email': email})
+            
+            otp_code = str(random.randint(100000, 999999))
+            expires_at = datetime.now(timezone.utc) + timedelta(minutes=5)
+            
+            hashed_password = generate_password_hash(password)
+            
+            db.otp_verifications.insert_one({
+                'email': email,
+                'otp_code': otp_code,
+                'name': name,
+                'phone': phone,
+                'password_hash': hashed_password,
+                'is_admin': False,
+                'created_at': datetime.now(timezone.utc),
+                'expires_at': expires_at,
+                'is_verified': False
+            })
+        except Exception as e:
+                print(f"OTP DB error: {e}")
+                return jsonify({'success': False, 'message': 'Database operation failed.'})
         
         if FLASK_MAIL_AVAILABLE:
             try:
@@ -215,8 +249,7 @@ def send_otp():
         return jsonify({
             'success': True, 
             'message': 'OTP sent successfully!',
-            'email': email,
-            'otp': otp_code  # Removing in production could be safer, but helps development/fallback
+            'email': email
         })
     return jsonify({'success': False, 'message': 'Invalid request'})
 
@@ -224,37 +257,48 @@ def send_otp():
 @app.route('/verify_otp', methods=['POST'])
 def verify_otp():
     if request.method == 'POST':
+        if db is None:
+            return jsonify({'success': False, 'message': 'Database unavailable.'})
+            
         email = request.form.get('email')
         otp = request.form.get('otp')
         
-        otp_record = db.otp_verifications.find_one({
-            'email': email, 
-            'otp_code': otp, 
-            'is_verified': False
-        })
-        
-        if not otp_record:
-            return jsonify({'success': False, 'message': 'Invalid OTP'})
-        
-        if otp_record.get('expires_at') and otp_record['expires_at'].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        try:
+            otp_record = db.otp_verifications.find_one({
+                'email': email, 
+                'otp_code': otp, 
+                'is_verified': False
+            })
+            
+            if not otp_record:
+                return jsonify({'success': False, 'message': 'Invalid OTP'})
+            
+            # Note: Mongo dates are stored as naive UTC or BSON datetime. 
+            # We must be careful with comparison. 
+            expiry = otp_record.get('expires_at')
+            if expiry:
+                # Ensure we compare with offset-aware UTC
+                if expiry.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+                    db.otp_verifications.delete_one({'_id': otp_record['_id']})
+                    return jsonify({'success': False, 'message': 'OTP has expired. Please request a new one.'})
+            
+            # Mark as verified
+            db.otp_verifications.update_one({'_id': otp_record['_id']}, {'$set': {'is_verified': True}})
+            
+            # Create user account
+            db.users.insert_one({
+                'name': otp_record.get('name'),
+                'email': otp_record.get('email'),
+                'phone': otp_record.get('phone'),
+                'password_hash': otp_record.get('password_hash'),
+                'is_admin': otp_record.get('is_admin', False)
+            })
+            
             db.otp_verifications.delete_one({'_id': otp_record['_id']})
-            return jsonify({'success': False, 'message': 'OTP has expired. Please request a new one.'})
-        
-        # Mark as verified
-        db.otp_verifications.update_one({'_id': otp_record['_id']}, {'$set': {'is_verified': True}})
-        
-        # Create user account
-        db.users.insert_one({
-            'name': otp_record.get('name'),
-            'email': otp_record.get('email'),
-            'phone': otp_record.get('phone'),
-            'password_hash': otp_record.get('password_hash'),
-            'is_admin': otp_record.get('is_admin', False)
-        })
-        
-        db.otp_verifications.delete_one({'_id': otp_record['_id']})
-        
-        return jsonify({'success': True, 'message': 'Account created successfully!'})
+            return jsonify({'success': True, 'message': 'Account created successfully!'})
+        except Exception as e:
+            print(f"Verify OTP error: {e}")
+            return jsonify({'success': False, 'message': 'Verification failed due to DB error.'})
     return jsonify({'success': False, 'message': 'Invalid request'})
 
 
@@ -291,8 +335,7 @@ def resend_otp():
         
         return jsonify({
             'success': True, 
-            'message': 'New OTP sent successfully!',
-            'otp': otp_code # Returning for convenience, remove for deep security
+            'message': 'New OTP sent successfully!'
         })
     return jsonify({'success': False, 'message': 'Invalid request'})
 
@@ -303,12 +346,18 @@ def google_login():
     # Note: Google Console must have this exact URI registered.
     redirect_uri = os.environ.get('REDIRECT_URI')
     if not redirect_uri:
+        # url_for will correctly use https thanks to ProxyFix
         redirect_uri = url_for('google_callback', _external=True)
+        
     return oauth.google.authorize_redirect(redirect_uri)
 
 
 @app.route('/login/callback')
 def google_callback():
+    if db is None:
+        flash("Database connection error. Try logging in again later.", "error")
+        return redirect(url_for('login'))
+        
     try:
         token = oauth.google.authorize_access_token()
         user_info = token.get('userinfo')
@@ -331,10 +380,34 @@ def google_callback():
             flash(f'Logged in successfully as {user.name}', 'success')
             return redirect(url_for('dashboard'))
     except Exception as e:
-        print(f"Auth Error: {e}")
-        flash('Login failed. Please try again.', 'error')
+        print(f"Auth Error during token exchange: {e}")
+        traceback.print_exc()
+        flash(f'Google login failed: {str(e)}', 'error')
         
     return redirect(url_for('login'))
+
+
+@app.route('/admin_secret_login', methods=['POST'])
+def admin_secret_login():
+    if db is None:
+         return jsonify({'success': False, 'message': 'Database not connected'})
+    pin = request.form.get('pin')
+    if pin == "52623":
+        admin_user_data = db.users.find_one({'email': ADMIN_EMAIL, 'is_admin': True})
+        if not admin_user_data:
+            # Auto-create admin if missing
+            db.users.insert_one({
+                'name': 'Admin',
+                'email': ADMIN_EMAIL,
+                'password_hash': generate_password_hash(ADMIN_PASSWORD),
+                'is_admin': True
+            })
+            admin_user_data = db.users.find_one({'email': ADMIN_EMAIL, 'is_admin': True})
+        
+        user = User(admin_user_data)
+        login_user(user)
+        return jsonify({'success': True, 'redirect': url_for('admin_dashboard')})
+    return jsonify({'success': False, 'message': 'Incorrect PIN'})
 
 
 @app.route('/logout')

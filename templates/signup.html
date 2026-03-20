@@ -341,25 +341,26 @@
                 method: "POST",
                 body: formData
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(text => { throw new Error(text || res.statusText) });
+                }
+                return res.json();
+            })
             .then(data => {
                 hideLoading();
                 if (data.success) {
                     detailsSection.style.display = 'none';
                     otpSection.style.display = 'block';
                     displayEmail.textContent = currentUserEmail;
-                    // Pre-fill if we have an OTP in response for testing
-                    if (data.otp) {
-                        const digits = data.otp.split('');
-                        otpInputs.forEach((inp, idx) => inp.value = digits[idx] || '');
-                    }
                 } else {
                     alert(data.message || 'Error sending OTP');
                 }
             })
             .catch(err => {
                 hideLoading();
-                alert('Something went wrong. Please try again.');
+                console.error("Signup Fetch Error:", err);
+                alert('Something went wrong. Check browser console for details.');
             });
         });
 
@@ -419,10 +420,6 @@
                 hideLoading();
                 if (data.success) {
                     alert('A new OTP has been sent to your email.');
-                    if (data.otp) {
-                        const digits = data.otp.split('');
-                        otpInputs.forEach((inp, idx) => inp.value = digits[idx] || '');
-                    }
                 } else {
                     alert(data.message || 'Error resending OTP');
                 }

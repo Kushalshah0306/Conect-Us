@@ -70,6 +70,20 @@
         </div>
     </footer>
 
+    <!-- Admin Locker Modal -->
+    <div id="admin-locker" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
+        <div style="background:white; padding:40px; border-radius:20px; text-align:center; max-width:320px; width:90%; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+            <div style="width:70px; height:70px; background:#f8f9fa; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+                <i class="fas fa-shield-halved" style="font-size:32px; color:#1a1a2e;"></i>
+            </div>
+            <h3 style="margin-bottom:10px; color:#1a1a2e;">Admin Access</h3>
+            <p style="color:#666; font-size:14px; margin-bottom:20px;">Enter restricted PIN to proceed</p>
+            <input type="password" id="admin-pin-input" placeholder="•••••" maxlength="5" style="width:100%; padding:15px; margin-bottom:15px; border:2px solid #eee; border-radius:12px; text-align:center; font-size:28px; letter-spacing:8px; font-weight:bold; outline:none; transition:border-color 0.3s;">
+            <button id="admin-unlock-btn" class="btn btn-dark" style="width:100%; padding:15px; border-radius:12px; font-weight:bold;">Authenticate</button>
+            <button id="close-locker" style="background:none; border:none; color:#999; margin-top:15px; cursor:pointer; font-size:14px;">Cancel</button>
+        </div>
+    </div>
+
     <script>
         setTimeout(function () {
             var messages = document.querySelectorAll('.flash-message');
@@ -78,6 +92,73 @@
                 setTimeout(function () { msg.remove(); }, 250);
             });
         }, 4000);
+
+        // Admin Secret Trigger (6 Clicks)
+        let logoClicks = 0;
+        let lastClickTime = 0;
+        const brandLogo = document.querySelector('.brand');
+        const locker = document.getElementById('admin-locker');
+        const pinInput = document.getElementById('admin-pin-input');
+        const unlockBtn = document.getElementById('admin-unlock-btn');
+
+        if (brandLogo) {
+            brandLogo.addEventListener('click', function(e) {
+                const now = Date.now();
+                if (now - lastClickTime > 2000) logoClicks = 0; // Reset if gap > 2s
+                
+                logoClicks++;
+                lastClickTime = now;
+
+                if (logoClicks >= 6) {
+                    e.preventDefault();
+                    locker.style.display = 'flex';
+                    pinInput.focus();
+                    logoClicks = 0;
+                }
+            });
+        }
+
+        document.getElementById('close-locker').addEventListener('click', () => {
+            locker.style.display = 'none';
+            pinInput.value = '';
+        });
+
+        unlockBtn.addEventListener('click', () => {
+            const pin = pinInput.value;
+            if (!pin) return;
+
+            const formData = new FormData();
+            formData.append('pin', pin);
+
+            unlockBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            unlockBtn.disabled = true;
+
+            fetch("{{ url_for('admin_secret_login') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert(data.message || 'Access Denied');
+                    pinInput.value = '';
+                    pinInput.focus();
+                    unlockBtn.innerHTML = 'Authenticate';
+                    unlockBtn.disabled = false;
+                }
+            })
+            .catch(err => {
+                alert('Connection error');
+                unlockBtn.innerHTML = 'Authenticate';
+                unlockBtn.disabled = false;
+            });
+        });
+        
+        pinInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') unlockBtn.click();
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
