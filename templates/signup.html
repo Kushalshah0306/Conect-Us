@@ -20,6 +20,8 @@
         padding: 50px;
         width: 100%;
         max-width: 450px;
+        position: relative;
+        overflow: hidden;
     }
     
     .auth-header {
@@ -140,69 +142,70 @@
     .auth-footer a:hover {
         text-decoration: underline;
     }
-    
-    .user-type-toggle {
+
+    #otp-section {
+        display: none;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    .otp-inputs {
         display: flex;
         gap: 10px;
-        margin-bottom: 25px;
+        justify-content: center;
+        margin-bottom: 20px;
     }
-    
-    .user-type-option {
-        flex: 1;
-        position: relative;
-    }
-    
-    .user-type-option input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-    }
-    
-    .user-type-option label {
-        display: block;
-        padding: 15px;
+
+    .otp-inputs input {
+        width: 45px;
+        height: 55px;
         text-align: center;
+        font-size: 24px;
         border: 2px solid #e0e0e0;
         border-radius: 10px;
-        cursor: pointer;
         transition: all 0.3s;
-        font-weight: 500;
     }
-    
-    .user-type-option input[type="radio"]:checked + label {
+
+    .otp-inputs input:focus {
         border-color: #ff6b35;
-        background: linear-gradient(135deg, #fff5f0 0%, #fff0e8 100%);
-        color: #ff6b35;
+        box-shadow: 0 0 10px rgba(255,107,53,0.2);
+        outline: none;
     }
     
-    .user-type-option label:hover {
-        border-color: #ff6b35;
+    #loading-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255,255,255,0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 10;
+        border-radius: 20px;
     }
-    
-    .user-type-option .icon {
-        font-size: 24px;
-        margin-bottom: 5px;
+
+    .spinner {
+        border: 4px solid rgba(0,0,0,0.1);
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        border-left-color: #ff6b35;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
     @media (max-width: 600px) {
-        .auth-container {
-            padding: 18px 10px;
-        }
-
-        .auth-box {
-            padding: 24px 16px;
-            border-radius: 14px;
-        }
-
-        .auth-header h2 {
-            font-size: 26px;
-        }
-
-        .btn-signup,
-        .btn-google,
-        .form-group input {
-            padding: 12px;
-            font-size: 15px;
-        }
+        .auth-container { padding: 18px 10px; }
+        .auth-box { padding: 24px 16px; border-radius: 14px; }
+        .auth-header h2 { font-size: 26px; }
+        .btn-signup, .btn-google, .form-group input { padding: 12px; font-size: 15px; }
     }
 </style>
 {% endblock %}
@@ -210,50 +213,225 @@
 {% block content %}
 <div class="auth-container">
     <div class="auth-box">
-        <div class="auth-header">
-            <h2>Create Account!</h2>
-            <p>Join Conect Us today</p>
+        <!-- Loading overlay -->
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <p style="margin-top:10px; font-weight: 500; color: #333;" id="loading-text">Processing...</p>
         </div>
-        
-        <form method="POST" action="{{ url_for('signup') }}">
-            <div class="form-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+
+        <div id="details-section">
+            <div class="auth-header">
+                <h2>Create Account!</h2>
+                <p>Join Conect Us today</p>
             </div>
             
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Create a password" required>
+                </div>
+                
+                <button type="submit" class="btn-signup">Send OTP</button>
+            </form>
+            
+            <div class="divider">
+                <span>OR</span>
             </div>
             
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
-            </div>
+            <a href="{{ url_for('google_login') }}" class="btn-google">
+                <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20">
+                Continue with Google
+            </a>
             
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Create a password" required>
+            <div class="auth-footer">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
             </div>
-            
-            <button type="submit" class="btn-signup">Create Account</button>
-        </form>
-        
-        <div class="divider">
-            <span>OR</span>
         </div>
-        
-        <a href="{{ url_for('google_login') }}" class="btn-google">
-            <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20">
-            Continue with Google
-        </a>
-        
-        <div class="auth-footer">
-            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+
+        <!-- OTP Section -->
+        <div id="otp-section">
+            <div class="auth-header">
+                <h2>Verify Email</h2>
+                <p>We've sent a 6-digit verification code to <br><strong id="display-email"></strong></p>
+            </div>
+            
+            <form id="otp-form">
+                <div class="otp-inputs">
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                    <input type="text" maxlength="1" class="otp-input" required>
+                </div>
+                
+                <button type="submit" class="btn-signup">Verify & Create Account</button>
+            </form>
+            
+            <div class="auth-footer">
+                <p>Didn't receive code? <a href="javascript:void(0)" id="resend-otp">Resend</a></p>
+                <p><a href="javascript:void(0)" id="back-to-details" style="color:#666; font-size:14px;">&larr; Back to details</a></p>
+            </div>
         </div>
+
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const signupForm = document.getElementById('signup-form');
+        const otpForm = document.getElementById('otp-form');
+        const detailsSection = document.getElementById('details-section');
+        const otpSection = document.getElementById('otp-section');
+        const displayEmail = document.getElementById('display-email');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        
+        const otpInputs = document.querySelectorAll('.otp-input');
+
+        let currentUserEmail = '';
+
+        // Auto focus next input for OTP
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if(e.target.value.length === 1 && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+            });
+            input.addEventListener('keydown', (e) => {
+                if(e.key === 'Backspace' && !e.target.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        function showLoading(text) {
+            loadingText.textContent = text;
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        signupForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            const formData = new FormData(signupForm);
+            currentUserEmail = formData.get('email');
+            
+            showLoading("Sending Verification Code...");
+            
+            fetch("{{ url_for('send_otp') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    detailsSection.style.display = 'none';
+                    otpSection.style.display = 'block';
+                    displayEmail.textContent = currentUserEmail;
+                    // Pre-fill if we have an OTP in response for testing
+                    if (data.otp) {
+                        const digits = data.otp.split('');
+                        otpInputs.forEach((inp, idx) => inp.value = digits[idx] || '');
+                    }
+                } else {
+                    alert(data.message || 'Error sending OTP');
+                }
+            })
+            .catch(err => {
+                hideLoading();
+                alert('Something went wrong. Please try again.');
+            });
+        });
+
+        otpForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            let otp = '';
+            otpInputs.forEach(i => otp += i.value);
+            
+            if (otp.length !== 6) {
+                alert('Please enter a valid 6-digit OTP');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('email', currentUserEmail);
+            formData.append('otp', otp);
+            
+            showLoading("Verifying Account...");
+
+            fetch("{{ url_for('verify_otp') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    alert('Account created successfully!');
+                    window.location.href = "{{ url_for('login') }}";
+                } else {
+                    alert(data.message || 'Invalid OTP');
+                }
+            })
+            .catch(err => {
+                hideLoading();
+                alert('Verification failed. Try again.');
+            });
+        });
+
+        document.getElementById('back-to-details').addEventListener('click', () => {
+            otpSection.style.display = 'none';
+            detailsSection.style.display = 'block';
+        });
+
+        document.getElementById('resend-otp').addEventListener('click', () => {
+            const formData = new FormData();
+            formData.append('email', currentUserEmail);
+            
+            showLoading("Resending OTP...");
+            fetch("{{ url_for('resend_otp') }}", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    alert('A new OTP has been sent to your email.');
+                    if (data.otp) {
+                        const digits = data.otp.split('');
+                        otpInputs.forEach((inp, idx) => inp.value = digits[idx] || '');
+                    }
+                } else {
+                    alert(data.message || 'Error resending OTP');
+                }
+            })
+            .catch(err => {
+                hideLoading();
+                alert('Error resending OTP');
+            });
+        });
+    });
+</script>
 {% endblock %}
-
-
-
