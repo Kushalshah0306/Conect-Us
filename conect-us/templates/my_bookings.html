@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings - Conect Us{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bookings-container {
+        padding: 50px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        margin-bottom: 40px;
+    }
+    
+    .page-header h1 {
+        font-size: 36px;
+        color: #1a1a2e;
+    }
+    
+    .booking-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .booking-info {
+        flex: 1;
+    }
+    
+    .booking-info h3 {
+        font-size: 22px;
+        color: #1a1a2e;
+        margin-bottom: 10px;
+    }
+    
+    .booking-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .detail-item i {
+        color: #ff6b35;
+        width: 20px;
+    }
+    
+    .detail-item span {
+        color: #666;
+    }
+    
+    .status-badge {
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-accepted {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-completed {
+        background: #cce5ff;
+        color: #004085;
+    }
+    
+    .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+    
+    .empty-state i {
+        font-size: 80px;
+        color: #ccc;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state h3 {
+        font-size: 28px;
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .empty-state p {
+        color: #999;
+        margin-bottom: 25px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bookings-container">
+    <div class="page-header">
+        <h1><i class="fas fa-calendar-check"></i> My Bookings</h1>
+    </div>
+    
+    {% if bookings %}
+        {% for booking in bookings %}
+        <div class="booking-card">
+            <div class="booking-info">
+                <h3>{{ booking.service_name }}</h3>
+                <div class="booking-details">
+                    <div class="detail-item">
+                        <i class="fas fa-user"></i>
+                        <span>{{ booking.user_name }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-phone"></i>
+                        <span>{{ booking.user_phone }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker"></i>
+                        <span>{{ booking.address }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>{{ booking.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                    </div>
+                </div>
+                {% if booking.description %}
+                <p style="margin-top: 15px; color: #666;"><strong>Description:</strong> {{ booking.description }}</p>
+                {% endif %}
+            </div>
+            <div class="status-badge status-{{ booking.status }}">
+                {{ booking.status|capitalize }}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <h3>No Bookings Yet</h3>
+            <p>You haven't booked any services yet. Browse our services and book your first service!</p>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; text-decoration: none; border-radius: 25px; font-weight: 600;">
+                Browse Services
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

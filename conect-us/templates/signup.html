@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Conect Us{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 20px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .auth-box {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 50px rgba(0,0,0,0.1);
+        padding: 50px;
+        width: 100%;
+        max-width: 450px;
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .auth-header h2 {
+        font-size: 32px;
+        color: #1a1a2e;
+        margin-bottom: 10px;
+    }
+    
+    .auth-header p {
+        color: #666;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #ff6b35;
+    }
+    
+    .btn-signup {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #2c3e50 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-signup:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    }
+    
+    .divider {
+        text-align: center;
+        margin: 25px 0;
+        position: relative;
+    }
+    
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e0e0e0;
+    }
+    
+    .divider span {
+        background: white;
+        padding: 0 15px;
+        color: #666;
+        position: relative;
+    }
+    
+    .btn-google {
+        width: 100%;
+        padding: 15px;
+        background: white;
+        color: #333;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s;
+    }
+    
+    .btn-google:hover {
+        border-color: #4285f4;
+        background: #f8f9fa;
+    }
+    
+    .auth-footer {
+        text-align: center;
+        margin-top: 25px;
+    }
+    
+    .auth-footer a {
+        color: #ff6b35;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+    
+    .user-type-toggle {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+    
+    .user-type-option {
+        flex: 1;
+        position: relative;
+    }
+    
+    .user-type-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+    
+    .user-type-option label {
+        display: block;
+        padding: 15px;
+        text-align: center;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+    }
+    
+    .user-type-option input[type="radio"]:checked + label {
+        border-color: #ff6b35;
+        background: linear-gradient(135deg, #fff5f0 0%, #fff0e8 100%);
+        color: #ff6b35;
+    }
+    
+    .user-type-option label:hover {
+        border-color: #ff6b35;
+    }
+    
+    .user-type-option .icon {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    @media (max-width: 600px) {
+        .auth-container {
+            padding: 18px 10px;
+        }
+
+        .auth-box {
+            padding: 24px 16px;
+            border-radius: 14px;
+        }
+
+        .auth-header h2 {
+            font-size: 26px;
+        }
+
+        .btn-signup,
+        .btn-google,
+        .form-group input {
+            padding: 12px;
+            font-size: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <h2>Create Account!</h2>
+            <p>Join Conect Us today</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('signup') }}">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Create a password" required>
+            </div>
+            
+            <button type="submit" class="btn-signup">Create Account</button>
+        </form>
+        
+        <div class="divider">
+            <span>OR</span>
+        </div>
+        
+        <a href="{{ url_for('google_login') }}" class="btn-google">
+            <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20">
+            Continue with Google
+        </a>
+        
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+

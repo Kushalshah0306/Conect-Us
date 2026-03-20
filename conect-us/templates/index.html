@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Conect Us - Home Services{% endblock %}
+
+{% block content %}
+<section class="container uc-hero">
+    <div class="uc-hero-left">
+        <div class="uc-topline">
+            <div class="uc-tabs">
+                <span class="active">Homes</span>
+                <span>Native</span>
+                <span>Beauty</span>
+            </div>
+            <div class="uc-location"><i class="fas fa-location-dot"></i> Ahmedabad</div>
+        </div>
+        <h1>Home services at your doorstep</h1>
+        <p>What are you looking for?</p>
+        <div class="search-panel">
+            <div class="search-box">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" placeholder="Search for services">
+            </div>
+        </div>
+        <div class="category-grid">
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2020/10/14/07/03/nail-art-5653458_1280.jpg');"></div><h4>Women's Salon & Spa</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://images.unsplash.com/photo-1653875700329-a7c8aca94c95?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000');"></div><h4>Men's Salon & Massage</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2019/04/02/18/16/cleaning-4098410_1280.jpg');"></div><h4>Cleaning</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2021/12/14/07/34/worker-6869868_1280.jpg');"></div><h4>AC & Appliance Repair</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://images.unsplash.com/photo-1569373200232-5468a0cdc191?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000');"></div><h4>Native Water Purifier</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2017/09/26/11/10/plumber-2788332_1280.jpg');"></div><h4>Electrician, Plumber & Carpenter</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2017/09/15/10/24/painter-2751662_1280.jpg');"></div><h4>Full Home Painting</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2017/03/15/10/32/tools-2145770_1280.jpg');"></div><h4>Native Smart Locks</h4></article>
+        </div>
+    </div>
+    <div class="uc-hero-right">
+        <div class="hero-banner">
+            <h3>Conect Us Essentials</h3>
+            <p>Book verified professionals for home cleaning, repairs, and premium salon services.</p>
+            <a href="{{ url_for('signup') }}" class="btn btn-dark">Book now</a>
+        </div>
+        <div class="hero-stats">
+            <div><strong>4.8</strong><span>Service Rating*</span></div>
+            <div><strong>12M+</strong><span>Customers Globally*</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="container cards-section">
+    <div class="section-head"><h2>New and noteworthy</h2></div>
+    <div class="promo-grid">
+        <article class="promo-card bg-1"><div><h4>Native Water Purifier</h4><p>Smart purifier with proactive servicing plans.</p></div><a href="{{ url_for('login') }}">Explore</a></article>
+        <article class="promo-card bg-2"><div><h4>InstaHelp</h4><p>Quick booking for urgent home tasks.</p></div><a href="{{ url_for('login') }}">Try now</a></article>
+        <article class="promo-card bg-3"><div><h4>Bathroom & Kitchen Cleaning</h4><p>Specialized deep cleaning with trained experts.</p></div><a href="{{ url_for('login') }}">Book</a></article>
+        <article class="promo-card bg-1"><div><h4>Full Home Painting</h4><p>Consultation, color matching, and clean finish.</p></div><a href="{{ url_for('login') }}">Check</a></article>
+    </div>
+</section>
+
+<section class="container service-section">
+    <div class="section-head"><h2>Most booked services</h2></div>
+    <div class="service-grid">
+        <article class="service-card"><div class="thumb t1"></div><h4>Roll-on waxing (Full arms, legs)</h4><p>4.87 (103K)</p></article>
+        <article class="service-card"><div class="thumb t2"></div><h4>Intense cleaning (2 bathrooms)</h4><p>4.80 (4.5M)</p></article>
+        <article class="service-card"><div class="thumb t3"></div><h4>Tap repair</h4><p>4.79 (116K)</p></article>
+        <article class="service-card"><div class="thumb t4"></div><h4>Haircut for men</h4><p>4.87 (470K)</p></article>
+        <article class="service-card"><div class="thumb t5"></div><h4>Foam-jet AC service</h4><p>4.77 (1.9M)</p></article>
+    </div>
+</section>
+
+<section class="container service-section">
+    <div class="section-head"><h2>Salon for women</h2><a href="{{ url_for('login') }}">See all</a></div>
+    <div class="service-grid">
+        <article class="service-card"><div class="thumb t6"></div><h4>Roll-on waxing</h4><p>4.87 (103K)</p></article>
+        <article class="service-card"><div class="thumb t7"></div><h4>Spatula waxing</h4><p>4.86 (71K)</p></article>
+        <article class="service-card"><div class="thumb t8"></div><h4>Crystal rose pedicure</h4><p>4.83 (173K)</p></article>
+        <article class="service-card"><div class="thumb t9"></div><h4>Mani-pedi delight</h4><p>4.82 (225K)</p></article>
+        <article class="service-card"><div class="thumb t10"></div><h4>Hair spa ritual</h4><p>4.80 (61K)</p></article>
+    </div>
+</section>
+
+<section class="container service-section">
+    <div class="section-head"><h2>Cleaning essentials</h2><a href="{{ url_for('login') }}">See all</a></div>
+    <div class="service-grid">
+        <article class="service-card"><div class="thumb t2"></div><h4>Intense cleaning (2 bathrooms)</h4><p>4.80 (4.5M)</p></article>
+        <article class="service-card"><div class="thumb t11"></div><h4>Classic cleaning (2 bathrooms)</h4><p>4.82 (1.4M)</p></article>
+        <article class="service-card"><div class="thumb t12"></div><h4>Carpet cleaning</h4><p>4.80 (109K)</p></article>
+        <article class="service-card"><div class="thumb t13"></div><h4>Mattress cleaning</h4><p>4.85 (109K)</p></article>
+        <article class="service-card"><div class="thumb t14"></div><h4>Chimney cleaning</h4><p>4.83 (94K)</p></article>
+    </div>
+</section>
+
+<section class="container service-section">
+    <div class="section-head"><h2>Appliance repair & service</h2><a href="{{ url_for('login') }}">See all</a></div>
+    <div class="service-grid">
+        <article class="service-card"><div class="thumb t15"></div><h4>Washing machine check-up</h4><p>4.77 (357K)</p></article>
+        <article class="service-card"><div class="thumb t5"></div><h4>Foam-jet AC service</h4><p>4.77 (1.9M)</p></article>
+        <article class="service-card"><div class="thumb t16"></div><h4>Geyser check-up</h4><p>4.72 (114K)</p></article>
+        <article class="service-card"><div class="thumb t17"></div><h4>Water purifier check-up</h4><p>4.78 (150K)</p></article>
+        <article class="service-card"><div class="thumb t18"></div><h4>TV check-up</h4><p>4.77 (161K)</p></article>
+    </div>
+</section>
+
+<section class="container service-section">
+    <div class="section-head"><h2>Home repair & installation</h2><a href="{{ url_for('login') }}">See all</a></div>
+    <div class="service-grid">
+        <article class="service-card"><div class="thumb t3"></div><h4>Tap repair</h4><p>4.79 (116K)</p></article>
+        <article class="service-card"><div class="thumb t19"></div><h4>Drill & hang (wall decor)</h4><p>4.85 (98K)</p></article>
+        <article class="service-card"><div class="thumb t20"></div><h4>Jet spray installation</h4><p>4.82 (62K)</p></article>
+        <article class="service-card"><div class="thumb t21"></div><h4>Switchboard repair</h4><p>4.84 (68K)</p></article>
+        <article class="service-card"><div class="thumb t22"></div><h4>Door lock repair</h4><p>4.84 (44K)</p></article>
+    </div>
+</section>
+
+<section class="container service-section">
+    <div class="section-head"><h2>Salon for men</h2><a href="{{ url_for('login') }}">See all</a></div>
+    <div class="service-grid">
+        <article class="service-card"><div class="thumb t4"></div><h4>Haircut for men</h4><p>4.87 (470K)</p></article>
+        <article class="service-card"><div class="thumb t23"></div><h4>Haircut for kids</h4><p>4.85 (105K)</p></article>
+        <article class="service-card"><div class="thumb t24"></div><h4>Head, neck & shoulder massage</h4><p>4.82 (51K)</p></article>
+        <article class="service-card"><div class="thumb t25"></div><h4>Lemon deep cleanse pedicure</h4><p>4.80 (28K)</p></article>
+        <article class="service-card"><div class="thumb t26"></div><h4>Express pedicure</h4><p>4.78 (24K)</p></article>
+    </div>
+</section>
+
+<section class="container app-banner">
+    <div>
+        <h2>Get the Conect Us app</h2>
+        <p>Book services faster, track professionals live, and get member-only offers.</p>
+    </div>
+    <div class="app-buttons">
+        <a href="#">Google Play</a>
+        <a href="#">App Store</a>
+    </div>
+</section>
+{% endblock %}
+
+
+
