@@ -247,7 +247,7 @@
     
     <div class="services-grid">
         {% for service in home_services %}
-        <div class="service-box" onclick="openServiceModal({{ service.id }}, '{{ service.name }}', '{{ service.description }}')">
+        <div class="service-box" onclick="openServiceModal('{{ service.id }}', '{{ service.name }}', '{{ service.description }}')">
             <div class="service-thumb" style="--svc-image: url('{{ service.image_url }}');"></div>
             <h3>{{ service.name }}</h3>
             <p>{{ service.description }}</p>
@@ -265,7 +265,7 @@
     
     <div class="services-grid">
         {% for service in commercial_services %}
-        <div class="service-box" onclick="openServiceModal({{ service.id }}, '{{ service.name }}', '{{ service.description }}')">
+        <div class="service-box" onclick="openServiceModal('{{ service.id }}', '{{ service.name }}', '{{ service.description }}')">
             <div class="service-thumb" style="--svc-image: url('{{ service.image_url }}');"></div>
             <h3>{{ service.name }}</h3>
             <p>{{ service.description }}</p>
@@ -425,7 +425,7 @@
 </div>
 
 <script>
-    const fallbackServiceId = {{ home_services[0].id if home_services else (commercial_services[0].id if commercial_services else 1) }};
+    const fallbackServiceId = "{{ home_services[0].id if home_services else (commercial_services[0].id if commercial_services else 1) }}";
 
     function openServiceModal(serviceId, serviceName, serviceDesc) {
         document.getElementById('serviceId').value = serviceId;
