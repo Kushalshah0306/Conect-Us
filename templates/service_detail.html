@@ -132,6 +132,27 @@
         .service-header { gap: 20px; }
         .service-image { height: 250px; }
         .service-info h1 { font-size: 30px; }
+        .service-info p { font-size: 16px; line-height: 1.7; }
+        .book-btn {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .sub-services h2 {
+            font-size: 26px;
+        }
+        .sub-services-grid {
+            grid-template-columns: 1fr;
+        }
+        #bookingModal > div {
+            width: calc(100% - 20px) !important;
+            margin: 12px auto !important;
+            padding: 20px !important;
+            max-height: calc(100vh - 24px);
+            max-height: calc(100dvh - 24px);
+            overflow-y: auto;
+        }
     }
 </style>
 {% endblock %}

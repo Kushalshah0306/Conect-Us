@@ -6,6 +6,7 @@
 <style>
     .auth-container {
         min-height: calc(100vh - 200px);
+        min-height: calc(100dvh - 200px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -186,11 +187,13 @@
     @media (max-width: 600px) {
         .auth-container {
             padding: 18px 10px;
+            align-items: stretch;
         }
 
         .auth-box {
             padding: 24px 16px;
             border-radius: 14px;
+            max-width: none;
         }
 
         .auth-header h2 {

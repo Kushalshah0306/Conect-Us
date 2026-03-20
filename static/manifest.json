@@ -2,10 +2,14 @@
   "name": "Conect Us",
   "short_name": "Conect Us",
   "description": "Premium Home and Business Services - On Demand professionals at your doorstep.",
-  "start_url": "/",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#ff6b35",
+  "theme_color": "#111827",
   "icons": [
     {
       "src": "/static/img/icon-192.png",
@@ -25,5 +29,6 @@
         "type": "image/png",
         "purpose": "maskable"
     }
-  ]
+  ],
+  "categories": ["home", "business", "utilities"]
 }
