@@ -1,12 +1,14 @@
 {
   "name": "Conect Us",
   "short_name": "Conect Us",
+  "id": "conect-us-pwa",
   "description": "Professional Home and Business Services Platform",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#111827",
+  "categories": ["lifestyle", "business", "home services"],
   "icons": [
     {
       "src": "/static/img/icon-192.png",
