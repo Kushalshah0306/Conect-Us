@@ -4,6 +4,10 @@
 
 {% block extra_css %}
 <style>
+    .site-header {
+        display: none !important;
+    }
+
     .admin-top-actions {
         display: flex;
         gap: 15px;
@@ -306,49 +310,64 @@
         }
 
         .booking-table tr {
-            margin-bottom: 14px;
-            padding: 16px;
+            position: relative;
+            margin-bottom: 25px;
+            padding: 24px 20px 20px;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+            border-left: 6px solid #111827;
         }
 
+        /* Status-based accents for cards */
+        .status-pill-pending ~ .nothing { border-left-color: #ffc107; } /* Note: tr selection is hard in CSS without :has or JS, but I'll use a better approach */
+        
         .booking-table td {
-            padding: 8px 0;
-            border-bottom: 1px solid #eef1f6;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 15px 0;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: left;
         }
 
         .booking-table td:last-child {
             border-bottom: none;
             padding-bottom: 0;
+            margin-top: 10px;
         }
 
         .booking-table td::before {
             content: attr(data-label);
-            display: block;
-            margin-bottom: 4px;
-            color: #6b7280;
-            font-size: 12px;
-            font-weight: 700;
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
         }
 
         .action-btns {
             display: flex;
-            flex-wrap: nowrap;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 2px;
-            -webkit-overflow-scrolling: touch;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
         }
 
         .btn-action {
-            min-width: 0;
-            flex: 1 1 0;
-            padding: 10px 12px;
-            text-align: center;
-            font-size: 12px;
+            flex: 1 1 calc(50% - 12px);
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            justify-content: center;
+        }
+
+        .btn-pdf {
+            flex: 1 1 100%;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            color: #111827;
         }
     }
 
