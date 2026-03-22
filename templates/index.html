@@ -57,32 +57,29 @@
         margin-bottom: 10px;
     }
 
-    @media (max-width: 768px) {
-        .section-head {
-            align-items: flex-start;
-            flex-direction: column;
-            margin-bottom: 14px;
+        .services-section { padding: 40px 0; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .section-header h2 { font-size: 28px; color: #1a1a2e; display: flex; align-items: center; gap: 12px; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
+        .service-box { 
+            background: white; border-radius: 20px; padding: 0 0 20px; text-align: center; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; border: 2.3px solid transparent; overflow: hidden;
+            text-decoration: none; display: block;
         }
+        .service-box:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0,0,0,0.15); border-color: #111827; }
+        .service-thumb { 
+            height: 160px; background-image: var(--svc-image), url('https://cdn.pixabay.com/photo/2017/03/15/10/32/tools-2145770_1280.jpg'); 
+            background-size: cover; background-position: center; border-bottom: 2px solid #f1f5f9;
+        }
+        .service-box h3 { font-size: 20px; color: #1a1a2e; margin: 18px 12px 6px; }
+        .service-box p { color: #666; font-size: 14px; line-height: 1.5; padding: 0 16px; margin-bottom: 10px; }
 
-        .uc-topline {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 12px;
+        @media (max-width: 768px) {
+            .services-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .service-thumb { height: 130px; }
+            .service-box h3 { font-size: 16px; margin: 14px 10px 4px; }
+            .service-box p { font-size: 13px; padding: 0 10px; }
         }
-
-        .category-item h4,
-        .service-card h4 {
-            font-size: 15px;
-        }
-
-        .service-card .thumb {
-            height: 160px !important;
-        }
-
-        .uc-hero-right {
-            display: none !important;
-        }
-    }
 </style>
 {% endblock %}
 
@@ -91,10 +88,7 @@
     <div class="uc-hero-left">
         <div class="uc-topline">
             <div class="uc-tabs">
-                <span class="tab-btn active" data-filter="all">All</span>
-                <span class="tab-btn" data-filter="home">Homes</span>
-                <span class="tab-btn" data-filter="native">Native</span>
-                <span class="tab-btn" data-filter="beauty">Beauty</span>
+                <!-- Tabs removed as requested -->
             </div>
             <div class="uc-location"><i class="fas fa-location-dot"></i> Ahmedabad</div>
         </div>
@@ -106,21 +100,14 @@
                 <input type="text" id="serviceSearch" placeholder="Search for services (e.g. Plumber, Cleaning)">
             </div>
         </div>
-        <div class="category-grid">
+        <div class="services-grid" style="margin-top: 25px;">
             {% for s in home_services %}
-            <a href="{{ url_for('service_detail', service_id=s.id) }}" class="category-item">
-                <div class="category-photo" style="--svc-image: url('{{ s.image_url }}');">
-                    {% if not s.image_url %}<i class="fas fa-tools"></i>{% endif %}
-                </div>
-                <h4>{{ s.name }}</h4>
+            <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-box">
+                <div class="service-thumb" style="--svc-image: url('{{ s.image_url }}');"></div>
+                <h3>{{ s.name }}</h3>
+                <p>{{ s.description[:50] }}...</p>
             </a>
             {% endfor %}
-            {% if not home_services %}
-            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2020/10/14/07/03/nail-art-5653458_1280.jpg');"></div><h4>Women's Salon & Spa</h4></article>
-            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://images.unsplash.com/photo-1653875700329-a7c8aca94c95?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000');"></div><h4>Men's Salon & Massage</h4></article>
-            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2019/04/02/18/16/cleaning-4098410_1280.jpg');"></div><h4>Cleaning</h4></article>
-            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2021/12/14/07/34/worker-6869868_1280.jpg');"></div><h4>AC & Appliance Repair</h4></article>
-            {% endif %}
         </div>
     </div>
     <div class="uc-hero-right">
@@ -136,31 +123,31 @@
     </div>
 </section>
 
-<section class="container cards-section">
-    <div class="section-head"><h2>Commercial Services</h2></div>
-    <div class="service-grid">
+<section class="container services-section">
+    <div class="section-header">
+        <h2><i class="fas fa-building"></i> Commercial Services</h2>
+    </div>
+    <div class="services-grid">
         {% for s in commercial_services %}
-        <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-card" style="text-decoration: none; color: inherit;">
-            <div class="thumb" style="background-image: url('{{ s.image_url }}'), url('https://cdn.pixabay.com/photo/2016/10/11/12/36/massage-therapy-1731456_1280.jpg'); background-size: cover; border-radius: 12px; height: 180px;"></div>
-            <h4 style="margin-top: 12px; font-weight: 600;">{{ s.name }}</h4>
-            <p style="font-size: 13px; color: #888;">Professional Service</p>
+        <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-box">
+            <div class="service-thumb" style="--svc-image: url('{{ s.image_url }}');"></div>
+            <h3>{{ s.name }}</h3>
+            <p>{{ s.description[:50] }}...</p>
         </a>
         {% endfor %}
-        {% if not commercial_services %}
-        <article class="service-card"><div class="thumb" style="background: #f1f5f9; height: 180px; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-building" style="font-size: 40px; color: #cbd5e1;"></i></div><h4 style="margin-top: 12px;">Office Support</h4></article>
-        <article class="service-card"><div class="thumb" style="background: #f1f5f9; height: 180px; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-shield-halved" style="font-size: 40px; color: #cbd5e1;"></i></div><h4 style="margin-top: 12px;">Security</h4></article>
-        {% endif %}
     </div>
 </section>
 
-<section class="container service-section">
-    <div class="section-head"><h2>All Categories</h2></div>
-    <div class="service-grid">
+<section class="container services-section">
+    <div class="section-header">
+        <h2><i class="fas fa-star"></i> All Categories</h2>
+    </div>
+    <div class="services-grid">
         {% for s in home_services + commercial_services %}
-        <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-card" style="text-decoration: none; color: inherit;">
-            <div class="thumb" style="background-image: url('{{ s.image_url }}'), url('https://cdn.pixabay.com/photo/2017/03/15/10/32/tools-2145770_1280.jpg'); background-size: cover; border-radius: 12px; height: 180px;"></div>
-            <h4 style="margin-top: 12px; font-weight: 600;">{{ s.name }}</h4>
-            <p style="font-size: 13px; color: #888;">Professional Service</p>
+        <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-box">
+            <div class="service-thumb" style="--svc-image: url('{{ s.image_url }}');"></div>
+            <h3>{{ s.name }}</h3>
+            <p>Professional Service</p>
         </a>
         {% endfor %}
     </div>
@@ -172,49 +159,23 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Search functionality
         const searchInput = document.getElementById('serviceSearch');
-        const filterTabs = document.querySelectorAll('.tab-btn');
-        const allServiceCards = document.querySelectorAll('.category-item, .service-card');
-        
-        function applyFilters() {
-            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-            const activeTab = document.querySelector('.tab-btn.active');
-            const categoryFilter = activeTab ? activeTab.getAttribute('data-filter') : 'all';
-            
-            allServiceCards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                const isMatch = text.includes(searchTerm);
-                
-                // Simplified category matching logic
-                let categoryMatch = (categoryFilter === 'all');
-                if (categoryFilter === 'home') {
-                    // Logic for home services (typically in category-grid)
-                    if (card.parentElement.classList.contains('category-grid') || text.includes('clean') || text.includes('repair')) categoryMatch = true;
-                } else if (categoryFilter === 'native') {
-                    if (text.includes('native') || text.includes('purifier') || text.includes('maintenance')) categoryMatch = true;
-                } else if (categoryFilter === 'beauty') {
-                    if (text.includes('salon') || text.includes('spa') || text.includes('hair') || text.includes('massage')) categoryMatch = true;
-                }
-                
-                if (isMatch && categoryMatch) {
-                    card.style.display = 'block';
-                    card.style.opacity = '1';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
+        const allServiceCards = document.querySelectorAll('.service-box');
         
         if (searchInput) {
-            searchInput.addEventListener('input', applyFilters);
-        }
-        
-        filterTabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                filterTabs.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                applyFilters();
+            searchInput.addEventListener('input', function(e) {
+                const term = e.target.value.toLowerCase();
+                
+                allServiceCards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (text.includes(term)) {
+                        card.style.display = 'block';
+                        card.style.opacity = '1';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
             });
-        });
+        }
     });
 </script>
 {% endif %}
