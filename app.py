@@ -478,7 +478,48 @@ def book_service():
         'created_at': datetime.now(timezone.utc)
     })
     
-    flash('Service booked successfully!', 'success')
+    # Send Attractive Confirmation Email
+    if FLASK_MAIL_AVAILABLE:
+        try:
+            msg = Message(
+                subject=f'Booking Confirmed: {service_name} Request',
+                recipients=[current_user.email]
+            )
+            msg.html = f"""
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+                <div style="background-color: #111827; padding: 40px 20px; text-align: center; color: #ffffff;">
+                    <h1 style="margin: 0; font-size: 32px; letter-spacing: 1px;">Conect Us</h1>
+                    <p style="margin: 10px 0 0; opacity: 0.8; font-size: 16px;">Professional Home Services</p>
+                </div>
+                
+                <div style="padding: 40px 30px;">
+                    <h2 style="color: #1a1a2e; margin-top: 0; font-size: 24px;">Thank You for Your Booking!</h2>
+                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">Hello <strong>{current_user.name}</strong>,</p>
+                    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">We've successfully received your request for <strong>{service_name}</strong>. Our team is currently reviewing your details and will get back to you shortly.</p>
+                    
+                    <div style="margin: 30px 0; background-color: #f9fafb; border-radius: 8px; padding: 25px; border-left: 4px solid #111827;">
+                        <h3 style="margin-top: 0; color: #111827; font-size: 18px;">Booking Summary</h3>
+                        <p style="margin: 8px 0; color: #374151;"><strong>Service:</strong> {service_name}</p>
+                        <p style="margin: 8px 0; color: #374151;"><strong>Address:</strong> {address}</p>
+                        <p style="margin: 8px 0; color: #374151;"><strong>Status:</strong> <span style="background-color: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">PENDING REVIEW</span></p>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 40px;">
+                        <a href="{url_for('my_bookings', _external=True)}" style="background-color: #111827; color: #ffffff; text-decoration: none; padding: 15px 30px; border-radius: 30px; font-weight: 600; display: inline-block;">View My Bookings</a>
+                    </div>
+                </div>
+                
+                <div style="background-color: #f3f4f6; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0; color: #6b7280; font-size: 14px;">Need help? Reply to this email or visit our Help Center.</p>
+                    <p style="margin: 10px 0 0; color: #9ca3af; font-size: 12px;">© {datetime.now().year} Conect Us Home Services. All Rights Reserved.</p>
+                </div>
+            </div>
+            """
+            mail.send(msg)
+        except Exception as e:
+            print(f"Failed to send booking confirmation email: {e}")
+
+    flash('Service booked successfully! A confirmation email has been sent to you.', 'success')
     return redirect(url_for('dashboard'))
 
 
@@ -605,74 +646,186 @@ def booking_pdf(booking_id):
 
     booking = to_dict_with_id(booking)
 
+    # Use io.BytesIO to create the PDF in memory
     buffer = io.BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=A4)
-    width, height = A4
-    y = height - 60
+    
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib import colors
+    from reportlab.lib.units import inch
 
-    def write_line(text, font_name="Helvetica", font_size=11, line_gap=18):
-        nonlocal y
-        pdf.setFont(font_name, font_size)
-        for line in wrap_text(str(text), 95):
-            if y < 60:
-                pdf.showPage()
-                pdf.setFont(font_name, font_size)
-                y = height - 60
-            pdf.drawString(50, y, line)
-            y -= line_gap
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
+    styles = getSampleStyleSheet()
+    
+    # Custom Styles
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor=colors.HexColor("#111827"),
+        spaceAfter=20,
+        alignment=0 # Left
+    )
+    
+    label_style = ParagraphStyle(
+        'LabelStyle',
+        parent=styles['Normal'],
+        fontSize=11,
+        fontName='Helvetica-Bold'
+    )
+    
+    value_style = ParagraphStyle(
+        'ValueStyle',
+        parent=styles['Normal'],
+        fontSize=11,
+        fontName='Helvetica'
+    )
 
-    def wrap_text(text, max_chars):
-        text = text or ""
-        words = text.split()
-        if not words:
-            return [""]
-        lines = []
-        current = words[0]
-        for word in words[1:]:
-            trial = f"{current} {word}"
-            if len(trial) <= max_chars:
-                current = trial
-            else:
-                lines.append(current)
-                current = word
-        lines.append(current)
-        return lines
+    content = []
+    
+    # Colorful Header: Full Width Brand Background
+    title_style_pdf = ParagraphStyle(
+        'TitleStylePDF',
+        parent=styles['Heading1'],
+        fontSize=28,
+        textColor=colors.white,
+        alignment=1, # Center
+        spaceAfter=15,
+        fontName='Helvetica-Bold'
+    )
+    
+    id_style_pdf = ParagraphStyle(
+        'IdStylePDF',
+        parent=styles['Normal'],
+        fontSize=10,
+        textColor=colors.whitesmoke,
+        alignment=1, # Center
+        fontName='Helvetica'
+    )
 
-    pdf.setTitle(f"booking-{booking['id']}.pdf")
-    write_line("Conect Us Booking Request", "Helvetica-Bold", 18, 24)
-    write_line(f"Request ID: {booking['id']}", "Helvetica-Bold", 12, 20)
-    write_line("")
-    write_line(f"Service: {booking.get('service_name', 'N/A')}")
-    write_line(f"Customer: {booking.get('user_name', 'N/A')}")
-    write_line(f"Email: {booking.get('user_email', 'N/A')}")
-    write_line(f"Phone: {booking.get('user_phone', 'N/A')}")
-    write_line(f"Status: {booking.get('status', 'pending').capitalize()}")
+    # Header with colorful background
+    header_table_data = [
+        [Paragraph("Conect Us", title_style_pdf)],
+        [Paragraph(f"BOOKING REQUEST ID: {booking['id'][:12].upper()}", id_style_pdf)]
+    ]
+    
+    header_table_full = Table(header_table_data, colWidths=[doc.width + doc.leftMargin + doc.rightMargin])
+    header_table_full.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#111827")),
+        ('TOPPADDING', (0, 0), (-1, -1), 30),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 30),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+    ]))
 
-    created_at = booking.get('created_at')
-    if created_at:
-        write_line(f"Created At: {created_at.strftime('%Y-%m-%d %H:%M')}")
+    # We need to use a slightly wider table to cover the whole page width or adjust margins
+    # Let's stick to the doc width for safety or use negative margins if DocTemplate allows
+    content.append(header_table_full)
+    content.append(Spacer(1, 25))
 
-    if booking.get('latitude') and booking.get('longitude'):
-        write_line(f"Location: {booking.get('latitude')}, {booking.get('longitude')}")
-    else:
-        write_line("Location: Not shared")
+    # Section headers with colorful accent
+    section_style = ParagraphStyle(
+        'SectionStyle',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor=colors.HexColor("#111827"),
+        spaceAfter=10,
+        borderPadding=(0, 0, 5, 0),
+        borderWidth=0,
+        borderColor=colors.HexColor("#111827")
+    )
+    
+    # Thinner and brand-colored horizontal line
+    from reportlab.platypus import HRFlowable
+    content.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#111827"), spaceAfter=25))
+    
+    # Custom Styles for Colorful Table
+    label_style_white = ParagraphStyle(
+        'LabelStyleWhite',
+        parent=styles['Normal'],
+        fontSize=11,
+        textColor=colors.white,
+        fontName='Helvetica-Bold'
+    )
+    
+    # Status-specific color
+    status_text = booking.get('status', 'pending').lower()
+    status_color = colors.HexColor("#111827") # Default
+    if status_text in ['accepted', 'completed']:
+        status_color = colors.HexColor("#10b981") # Green
+    elif status_text == 'pending':
+        status_color = colors.HexColor("#f59e0b") # Amber
 
-    write_line("")
-    write_line("Address", "Helvetica-Bold", 12, 20)
-    write_line(booking.get('address', 'N/A'))
-    write_line("")
-    write_line("Description", "Helvetica-Bold", 12, 20)
-    write_line(booking.get('description', 'N/A'))
+    # Main Info Table with vibrant headers
+    info_data = [
+        [Paragraph("Service Category", label_style_white), Paragraph(booking.get('service_name', 'N/A'), value_style)],
+        [Paragraph("Booking Status", label_style_white), Paragraph(f"<b>{booking.get('status', 'pending').upper()}</b>", ParagraphStyle('StatusStyle', parent=value_style, textColor=status_color))],
+        [Paragraph("Date Requested", label_style_white), Paragraph(booking.get('created_at').strftime('%Y-%m-%d %H:%M') if booking.get('created_at') else 'N/A', value_style)],
+    ]
+    
+    info_table = Table(info_data, colWidths=[2.2*inch, 4.3*inch], rowHeights=35)
+    info_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#111827")),
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#111827")),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('LEFTPADDING', (0, 0), (-1, -1), 15),
+    ]))
+    
+    content.append(Paragraph("Booking Details", section_style))
+    content.append(Spacer(1, 10))
+    content.append(info_table)
+    content.append(Spacer(1, 20))
+    
+    # Customer Table with vibrant headers
+    customer_data = [
+        [Paragraph("Customer Name", label_style_white), Paragraph(booking.get('user_name', 'N/A'), value_style)],
+        [Paragraph("Email Address", label_style_white), Paragraph(booking.get('user_email', 'N/A'), value_style)],
+        [Paragraph("Phone Number", label_style_white), Paragraph(booking.get('user_phone', 'N/A'), value_style)],
+        [Paragraph("Full Address", label_style_white), Paragraph(booking.get('address', 'N/A'), value_style)],
+    ]
+    
+    customer_table = Table(customer_data, colWidths=[2.2*inch, 4.3*inch], rowHeights=None)
+    customer_table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.HexColor("#111827")),
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#1d293f")),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('TOPPADDING', (0, 0), (-1, -1), 12),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('LEFTPADDING', (0, 0), (-1, -1), 15),
+    ]))
+    
+    content.append(Paragraph("Customer Information", section_style))
+    content.append(Spacer(1, 10))
+    content.append(customer_table)
+    content.append(Spacer(1, 25))
+    
+    # Description
+    content.append(Paragraph("Work Description", section_style))
+    content.append(Spacer(1, 8))
+    content.append(Paragraph(booking.get('description') or 'No description provided.', value_style))
+    content.append(Spacer(1, 40))
+    
+    # Centered Footer Function (updated with more color/style)
+    def add_footer(canvas, doc):
+        canvas.saveState()
+        canvas.setStrokeColor(colors.HexColor("#111827"))
+        canvas.setLineWidth(2)
+        canvas.line(0.5*inch, 0.95*inch, A4[0]-0.5*inch, 0.95*inch)
+        
+        canvas.setFont('Helvetica', 9)
+        canvas.setFillColor(colors.HexColor("#111827"))
+        canvas.drawString(0.5*inch, 0.75 * inch, f"© {datetime.now().year} Conect Us Home Services Platform")
+        canvas.drawRightString(A4[0] - 0.5*inch, 0.75 * inch, f"Official Service Document - Page {doc.page}")
+        canvas.restoreState()
 
-    pdf.showPage()
-    pdf.save()
+    doc.build(content, onFirstPage=add_footer, onLaterPages=add_footer)
+    
     buffer.seek(0)
-
     return send_file(
         buffer,
         mimetype='application/pdf',
         as_attachment=True,
-        download_name=f"booking-request-{booking['id']}.pdf"
+        download_name=f"booking-request-{booking['id'][:8]}.pdf"
     )
 
 def init_db():

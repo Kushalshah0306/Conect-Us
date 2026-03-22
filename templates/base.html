@@ -129,6 +129,15 @@
         </div>
     </footer>
 
+    <style>
+        /* Hide footer on mobile devices as requested */
+        @media (max-width: 600px) {
+            .site-footer {
+                display: none !important;
+            }
+        }
+    </style>
+
     <!-- Admin Locker Modal -->
     <div id="admin-locker" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(5px);">
         <div style="background:white; padding:40px; border-radius:20px; text-align:center; max-width:320px; width:90%; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
