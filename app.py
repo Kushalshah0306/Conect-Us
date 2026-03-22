@@ -126,7 +126,7 @@ def sw():
 
 @app.route('/manifest.json')
 def manifest():
-    return send_from_directory('static', 'manifest.json', mimetype='application/json')
+    return send_from_directory('static', 'manifest.json', mimetype='application/manifest+json')
 
 
 @app.route('/')
