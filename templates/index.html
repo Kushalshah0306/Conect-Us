@@ -57,29 +57,32 @@
         margin-bottom: 10px;
     }
 
-        .services-section { padding: 40px 0; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .section-header h2 { font-size: 28px; color: #1a1a2e; display: flex; align-items: center; gap: 12px; }
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
-        .service-box { 
-            background: white; border-radius: 20px; padding: 0 0 20px; text-align: center; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; border: 2.3px solid transparent; overflow: hidden;
-            text-decoration: none; display: block;
+    @media (max-width: 768px) {
+        .section-head {
+            align-items: flex-start;
+            flex-direction: column;
+            margin-bottom: 14px;
         }
-        .service-box:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0,0,0,0.15); border-color: #111827; }
-        .service-thumb { 
-            height: 160px; background-image: var(--svc-image), url('https://cdn.pixabay.com/photo/2017/03/15/10/32/tools-2145770_1280.jpg'); 
-            background-size: cover; background-position: center; border-bottom: 2px solid #f1f5f9;
-        }
-        .service-box h3 { font-size: 20px; color: #1a1a2e; margin: 18px 12px 6px; }
-        .service-box p { color: #666; font-size: 14px; line-height: 1.5; padding: 0 16px; margin-bottom: 10px; }
 
-        @media (max-width: 768px) {
-            .services-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .service-thumb { height: 130px; }
-            .service-box h3 { font-size: 16px; margin: 14px 10px 4px; }
-            .service-box p { font-size: 13px; padding: 0 10px; }
+        .uc-topline {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
         }
+
+        .category-item h4,
+        .service-card h4 {
+            font-size: 15px;
+        }
+
+        .service-card .thumb {
+            height: 160px !important;
+        }
+
+        .uc-hero-right {
+            display: none !important;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -100,30 +103,20 @@
                 <input type="text" id="serviceSearch" placeholder="Search for services (e.g. Plumber, Cleaning)">
             </div>
         </div>
-        <div class="services-grid" style="margin-top: 25px;">
+        <div class="category-grid">
             {% for s in home_services %}
-            <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-box">
-                <div class="service-thumb" style="--svc-image: url('{{ s.image_url }}');"></div>
-                <h3>{{ s.name }}</h3>
-                <p>{{ s.description[:50] }}...</p>
+            <a href="{{ url_for('service_detail', service_id=s.id) }}" class="category-item">
+                <div class="category-photo" style="--svc-image: url('{{ s.image_url }}');">
+                    {% if not s.image_url %}<i class="fas fa-tools"></i>{% endif %}
+                </div>
+                <h4>{{ s.name }}</h4>
             </a>
             {% endfor %}
             {% if not home_services %}
-            <article class="service-box">
-                <div class="service-thumb" style="--svc-image: url('https://cdn.pixabay.com/photo/2020/10/14/07/03/nail-art-5653458_1280.jpg');"></div>
-                <h3>Women's Salon</h3>
-                <p>Premium beauty treatments at home</p>
-            </article>
-            <article class="service-box">
-                <div class="service-thumb" style="--svc-image: url('https://cdn.pixabay.com/photo/2019/04/02/18/16/cleaning-4098410_1280.jpg');"></div>
-                <h3>Deep Cleaning</h3>
-                <p>Professional home sanitization</p>
-            </article>
-            <article class="service-box">
-                <div class="service-thumb" style="--svc-image: url('https://cdn.pixabay.com/photo/2021/12/14/07/34/worker-6869868_1280.jpg');"></div>
-                <h3>AC Repair</h3>
-                <p>Expert appliance maintenance</p>
-            </article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2020/10/14/07/03/nail-art-5653458_1280.jpg');"></div><h4>Women's Salon & Spa</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://images.unsplash.com/photo-1653875700329-a7c8aca94c95?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000');"></div><h4>Men's Salon & Massage</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2019/04/02/18/16/cleaning-4098410_1280.jpg');"></div><h4>Cleaning</h4></article>
+            <article class="category-item"><div class="category-photo" style="--svc-image: url('https://cdn.pixabay.com/photo/2021/12/14/07/34/worker-6869868_1280.jpg');"></div><h4>AC & Appliance Repair</h4></article>
             {% endif %}
         </div>
     </div>
@@ -140,43 +133,31 @@
     </div>
 </section>
 
-<section class="container services-section">
-    <div class="section-header">
-        <h2><i class="fas fa-building"></i> Commercial Services</h2>
-    </div>
-    <div class="services-grid">
+<section class="container cards-section">
+    <div class="section-head"><h2>Commercial Services</h2></div>
+    <div class="service-grid">
         {% for s in commercial_services %}
-        <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-box">
-            <div class="service-thumb" style="--svc-image: url('{{ s.image_url }}');"></div>
-            <h3>{{ s.name }}</h3>
-            <p>{{ s.description[:50] }}...</p>
+        <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-card" style="text-decoration: none; color: inherit;">
+            <div class="thumb" style="background-image: url('{{ s.image_url }}'), url('https://cdn.pixabay.com/photo/2016/10/11/12/36/massage-therapy-1731456_1280.jpg'); background-size: cover; border-radius: 12px; height: 180px;"></div>
+            <h4 style="margin-top: 12px; font-weight: 600;">{{ s.name }}</h4>
+            <p style="font-size: 13px; color: #888;">Professional Service</p>
         </a>
         {% endfor %}
         {% if not commercial_services %}
-        <article class="service-box">
-            <div class="service-thumb" style="--svc-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80');"></div>
-            <h3>Office Cleaning</h3>
-            <p>Sanitization for workstations</p>
-        </article>
-        <article class="service-box">
-            <div class="service-thumb" style="--svc-image: url('https://images.unsplash.com/photo-1541888946425-d81bb19480c5?auto=format&fit=crop&w=1200&q=80');"></div>
-            <h3>Construction</h3>
-            <p>Reliable commercial building</p>
-        </article>
+        <article class="service-card"><div class="thumb" style="background: #f1f5f9; height: 180px; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-building" style="font-size: 40px; color: #cbd5e1;"></i></div><h4 style="margin-top: 12px;">Office Support</h4></article>
+        <article class="service-card"><div class="thumb" style="background: #f1f5f9; height: 180px; border-radius: 12px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-shield-halved" style="font-size: 40px; color: #cbd5e1;"></i></div><h4 style="margin-top: 12px;">Security</h4></article>
         {% endif %}
     </div>
 </section>
 
-<section class="container services-section">
-    <div class="section-header">
-        <h2><i class="fas fa-star"></i> All Categories</h2>
-    </div>
-    <div class="services-grid">
+<section class="container service-section">
+    <div class="section-head"><h2>All Categories</h2></div>
+    <div class="service-grid">
         {% for s in home_services + commercial_services %}
-        <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-box">
-            <div class="service-thumb" style="--svc-image: url('{{ s.image_url }}');"></div>
-            <h3>{{ s.name }}</h3>
-            <p>Professional Service</p>
+        <a href="{{ url_for('service_detail', service_id=s.id) }}" class="service-card" style="text-decoration: none; color: inherit;">
+            <div class="thumb" style="background-image: url('{{ s.image_url }}'), url('https://cdn.pixabay.com/photo/2017/03/15/10/32/tools-2145770_1280.jpg'); background-size: cover; border-radius: 12px; height: 180px;"></div>
+            <h4 style="margin-top: 12px; font-weight: 600;">{{ s.name }}</h4>
+            <p style="font-size: 13px; color: #888;">Professional Service</p>
         </a>
         {% endfor %}
     </div>
@@ -188,7 +169,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Search functionality
         const searchInput = document.getElementById('serviceSearch');
-        const allServiceCards = document.querySelectorAll('.service-box');
+        const allServiceCards = document.querySelectorAll('.category-item, .service-card');
         
         if (searchInput) {
             searchInput.addEventListener('input', function(e) {
