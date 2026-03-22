@@ -48,6 +48,12 @@ img {
     margin: 0 auto;
 }
 
+.site-header .container {
+    width: 100%;
+    max-width: none;
+    padding: 0 40px;
+}
+
 .main-content {
     min-height: calc(100vh - 180px);
     min-height: calc(100dvh - 180px);
@@ -540,6 +546,9 @@ img {
     .main-content {
         min-height: calc(100vh - 154px);
         min-height: calc(100dvh - 154px);
+    }
+    .site-header .container {
+        padding: 0 16px;
     }
     .header-inner {
         height: 64px;
