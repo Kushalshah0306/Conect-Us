@@ -1,25 +1,24 @@
-{% extends "admin/admin_dashboard.html" %}
+{% extends "base.html" %}
 
-{% block title %}Client Activities - Admin Dashboard{% endblock %}
+{% block title %}Client Activities - Conect Us{% endblock %}
 
 {% block extra_css %}
 <style>
+    .site-header {
+        display: none !important;
+    }
+
     .admin-header {
-        background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
-        padding: 30px 40px;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        padding: 30px 50px;
         color: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 2px solid rgba(255,255,255,0.05);
     }
     
     .admin-header h1 {
-        font-size: 28px;
-        margin-bottom: 5px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        font-size: 32px;
     }
     
     .admin-nav {
@@ -29,93 +28,87 @@
     
     .nav-btn {
         padding: 10px 20px;
-        border-radius: 10px;
-        font-weight: 600;
+        border-radius: 25px;
         text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s;
-    }
-    
-    .nav-btn-outline {
-        border: 2px solid rgba(255,255,255,0.2);
-        color: white;
-    }
-    
-    .nav-btn-outline:hover {
-        background: rgba(255,255,255,0.1);
-        border-color: white;
+        font-weight: 500;
+        transition: all 0.3s;
     }
     
     .nav-btn-primary {
-        background: white;
-        color: #111827;
+        background: #111827;
+        color: white;
     }
     
-    .nav-btn-primary:hover {
-        background: #f3f4f6;
+    .nav-btn-outline {
+        border: 2px solid white;
+        color: white;
     }
-
+    
+    .nav-btn:hover {
+        transform: translateY(-2px);
+    }
+    
     .admin-stats {
-        padding: 30px 40px;
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 25px;
+        padding: 40px 50px;
+        max-width: 1400px;
+        margin: 0 auto;
     }
     
     .stat-card {
         background: white;
-        padding: 25px;
         border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border-left: 5px solid #111827;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        text-align: center;
     }
     
     .stat-card h3 {
-        color: #6b7280;
         font-size: 14px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        color: #666;
         margin-bottom: 10px;
+        text-transform: uppercase;
     }
     
     .stat-card .number {
-        font-size: 32px;
-        font-weight: 700;
-        color: #111827;
+        font-size: 36px;
+        font-weight: bold;
+        color: #1a1a2e;
     }
     
-    .stat-card.clients { border-color: #111827; }
-    .stat-card.bookings { border-color: #10b981; }
-    .stat-card.pending { border-color: #f59e0b; }
-    .stat-card.completed { border-color: #3b82f6; }
-
+    .stat-card.clients { border-top: 4px solid #17a2b8; }
+    .stat-card.bookings { border-top: 4px solid #111827; }
+    .stat-card.pending { border-top: 4px solid #ffc107; }
+    .stat-card.completed { border-top: 4px solid #28a745; }
+    
     .content-section {
-        padding: 0 40px 40px;
+        padding: 0 50px 50px;
+        max-width: 1400px;
+        margin: 0 auto;
     }
     
     .section-title {
-        font-size: 20px;
-        margin-bottom: 25px;
-        color: #111827;
+        font-size: 24px;
+        color: #1a1a2e;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
         gap: 10px;
     }
-
+    
     .clients-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 25px;
+        gap: 20px;
     }
     
     .client-card {
         background: white;
         border-radius: 15px;
         padding: 25px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border: 1px solid #e5e7eb;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     }
     
     .client-card-header {
@@ -123,118 +116,207 @@
         align-items: center;
         gap: 15px;
         margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #f3f4f6;
     }
     
     .client-avatar {
         width: 50px;
         height: 50px;
-        background: #f3f4f6;
-        color: #111827;
+        background: #111827;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        color: white;
         font-size: 20px;
-        font-weight: 700;
+        font-weight: bold;
     }
     
     .client-info h4 {
         margin: 0;
+        color: #1a1a2e;
         font-size: 18px;
     }
     
     .client-info p {
-        margin: 0;
-        color: #6b7280;
-        font-size: 13px;
+        margin: 5px 0 0;
+        color: #666;
+        font-size: 14px;
     }
     
     .client-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 10px;
-        margin-bottom: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
     }
     
     .client-stat {
-        background: #f9fafb;
-        padding: 12px;
-        border-radius: 10px;
         text-align: center;
     }
     
     .client-stat .count {
-        font-size: 18px;
-        font-weight: 700;
-        color: #111827;
+        font-size: 20px;
+        font-weight: bold;
+        color: #1a1a2e;
     }
     
     .client-stat .label {
-        font-size: 11px;
-        color: #6b7280;
-        text-transform: uppercase;
+        font-size: 12px;
+        color: #666;
     }
-
+    
+    .recent-activity {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+    
     .recent-activity h5 {
+        margin: 0 0 10px;
+        color: #1a1a2e;
         font-size: 14px;
-        margin-bottom: 12px;
-        color: #111827;
     }
     
     .activity-item {
         display: flex;
-        gap: 12px;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
         font-size: 13px;
-        margin-bottom: 10px;
-        padding-bottom: 8px;
-        border-bottom: 1px dashed #f3f4f6;
     }
     
-    .activity-item:last-child {
-        margin-bottom: 0;
-        padding-bottom: 0;
-        border-bottom: none;
-    }
-
     .activity-icon {
         width: 24px;
         height: 24px;
-        border-radius: 6px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
+        font-size: 12px;
     }
     
-    .activity-pending { background: #fef3c7; color: #d97706; }
-    .activity-accepted { background: #d1fae5; color: #059669; }
-    .activity-completed { background: #dbeafe; color: #2563eb; }
-    .activity-cancelled { background: #fee2e2; color: #dc2626; }
-
-    @media (max-width: 991px) {
-        .admin-stats { grid-template-columns: repeat(2, 1fr); padding: 20px; }
-        .content-section { padding: 0 20px 20px; }
+    .activity-pending { background: #fff3cd; color: #856404; }
+    .activity-accepted { background: #d4edda; color: #155724; }
+    .activity-completed { background: #cce5ff; color: #004085; }
+    .activity-cancelled { background: #f8d7da; color: #721c24; }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        background: white;
+        border-radius: 15px;
+    }
+    
+    .empty-state i {
+        font-size: 60px;
+        color: #ccc;
+        margin-bottom: 20px;
     }
 
     @media (max-width: 768px) {
         .admin-header {
-            width: 100%;
-            margin: 0;
-            padding: 24px 16px;
+            padding: 22px 16px;
             flex-direction: column;
             align-items: flex-start;
             gap: 16px;
-            box-sizing: border-box;
         }
-        .admin-stats {
+
+        .admin-header h1 {
+            font-size: 26px;
+        }
+
+        .admin-nav {
             width: 100%;
-            margin: 0;
-            padding: 24px 16px;
-            gap: 16px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            text-align: center;
+        }
+
+        .admin-stats {
+            padding: 18px 12px;
+            gap: 12px;
             grid-template-columns: 1fr 1fr;
-            box-sizing: border-box;
+        }
+
+        .stat-card {
+            padding: 18px;
+        }
+
+        .stat-card .number {
+            font-size: 28px;
+        }
+
+        .content-section {
+            padding: 0 12px 24px;
+        }
+
+        .section-title {
+            font-size: 21px;
+            line-height: 1.3;
+        }
+
+        .clients-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .client-card {
+            padding: 18px;
+            border-radius: 16px;
+        }
+
+        .client-card-header {
+            align-items: flex-start;
+        }
+
+        .client-info h4 {
+            font-size: 17px;
+        }
+
+        .client-stats {
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .recent-activity {
+            margin-top: 16px;
+            padding-top: 12px;
+        }
+
+        .activity-item {
+            align-items: flex-start;
+        }
+
+        .empty-state {
+            padding: 36px 20px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .admin-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .client-card-header {
+            flex-direction: column;
+        }
+
+        .client-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .client-stat {
+            padding: 10px 0;
+            border-bottom: 1px solid #eef1f6;
+        }
+
+        .client-stat:last-child {
+            border-bottom: none;
         }
     }
 </style>
@@ -243,18 +325,15 @@
 {% block content %}
 <!-- Admin Header -->
 <div class="admin-header">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <img src="{{ url_for('static', filename='img/icon-192.png') }}" alt="C" style="width: 45px; height: 45px; border-radius: 12px;">
-        <div>
-            <h1>Client Activities</h1>
-            <p style="opacity: 0.8;">Monitor all client bookings and activities</p>
-        </div>
+    <div>
+        <h1><i class="fas fa-users"></i> Client Activities</h1>
+        <p>Monitor all client bookings and activities</p>
     </div>
     <div class="admin-nav">
         <a href="{{ url_for('admin_dashboard') }}" class="nav-btn nav-btn-outline">
             <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
-        <a href="{{ url_for('logout') }}" class="nav-btn nav-btn-primary">
+        <a href="{{ url_for('logout') }}" class="nav-btn nav-btn-primary" style="background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.18);">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </div>

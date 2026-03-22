@@ -25,7 +25,8 @@
     <header class="site-header">
         <div class="container header-inner">
             <a href="{{ url_for('index') }}" class="brand">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Conect Us" style="height: 42px; width: auto;">
+                <span class="brand-mark">C</span>
+                <span class="brand-text">Conect Us</span>
             </a>
 
             <nav class="site-nav">
@@ -51,7 +52,8 @@
     <div id="side-menu" class="side-menu">
         <div class="side-menu-header">
             <a href="{{ url_for('index') }}" class="brand">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Conect Us" style="height: 42px; width: auto;">
+                <span class="brand-mark">C</span>
+                <span class="brand-text">Conect Us</span>
             </a>
             <button id="close-menu" class="close-menu">&times;</button>
         </div>
@@ -90,8 +92,9 @@
     <footer class="site-footer">
         <div class="container footer-grid">
             <div class="footer-brand-block">
-                <a href="{{ url_for('index') }}" class="brand" style="margin-bottom: 20px; display: inline-flex;">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Conect Us" style="height: 50px; width: auto; filter: brightness(0) invert(1);">
+                <a href="{{ url_for('index') }}" class="brand" style="color: white; margin-bottom: 15px; display: inline-flex;">
+                    <span class="brand-mark" style="background: white; color: #111827;">C</span>
+                    <span class="brand-text" style="color: white;">Conect Us</span>
                 </a>
                 <p>Trusted professionals for home and business services, delivered with fast booking and dependable support.</p>
                 <div class="social-links" style="display: flex; gap: 15px; margin-top: 22px;">
