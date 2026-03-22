@@ -40,11 +40,17 @@
         color: #5e6577;
         font-size: 13px;
         font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
     }
 
     .uc-tabs .active {
         background: #111827;
         color: white;
+    }
+
+    .uc-tabs span:hover:not(.active) {
+        background: #e2e8f0;
     }
 
     .cards-section {
@@ -72,6 +78,10 @@
         .service-card .thumb {
             height: 160px !important;
         }
+
+        .uc-hero-right {
+            display: none !important;
+        }
     }
 </style>
 {% endblock %}
@@ -81,9 +91,10 @@
     <div class="uc-hero-left">
         <div class="uc-topline">
             <div class="uc-tabs">
-                <span class="active">Homes</span>
-                <span>Native</span>
-                <span>Beauty</span>
+                <span class="tab-btn active" data-filter="all">All</span>
+                <span class="tab-btn" data-filter="home">Homes</span>
+                <span class="tab-btn" data-filter="native">Native</span>
+                <span class="tab-btn" data-filter="beauty">Beauty</span>
             </div>
             <div class="uc-location"><i class="fas fa-location-dot"></i> Ahmedabad</div>
         </div>
@@ -161,27 +172,49 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Search functionality
         const searchInput = document.getElementById('serviceSearch');
-        if (searchInput) {
-            searchInput.addEventListener('input', function(e) {
-                const term = e.target.value.toLowerCase();
-                const allServiceCards = document.querySelectorAll('.category-item, .service-card');
+        const filterTabs = document.querySelectorAll('.tab-btn');
+        const allServiceCards = document.querySelectorAll('.category-item, .service-card');
+        
+        function applyFilters() {
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            const activeTab = document.querySelector('.tab-btn.active');
+            const categoryFilter = activeTab ? activeTab.getAttribute('data-filter') : 'all';
+            
+            allServiceCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const isMatch = text.includes(searchTerm);
                 
-                allServiceCards.forEach(card => {
-                    const text = card.textContent.toLowerCase();
-                    const parent = card.parentElement;
-                    
-                    if (text.includes(term)) {
-                        card.style.display = 'block';
-                        // If it's in a grid, ensure it's visible
-                        if (parent.classList.contains('category-grid') || parent.classList.contains('service-grid')) {
-                            card.style.opacity = '1';
-                        }
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
+                // Simplified category matching logic
+                let categoryMatch = (categoryFilter === 'all');
+                if (categoryFilter === 'home') {
+                    // Logic for home services (typically in category-grid)
+                    if (card.parentElement.classList.contains('category-grid') || text.includes('clean') || text.includes('repair')) categoryMatch = true;
+                } else if (categoryFilter === 'native') {
+                    if (text.includes('native') || text.includes('purifier') || text.includes('maintenance')) categoryMatch = true;
+                } else if (categoryFilter === 'beauty') {
+                    if (text.includes('salon') || text.includes('spa') || text.includes('hair') || text.includes('massage')) categoryMatch = true;
+                }
+                
+                if (isMatch && categoryMatch) {
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                } else {
+                    card.style.display = 'none';
+                }
             });
         }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFilters);
+        }
+        
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                applyFilters();
+            });
+        });
     });
 </script>
 {% endif %}
