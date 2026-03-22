@@ -148,15 +148,18 @@ img {
 .btn-dark {
     background: var(--brand);
     color: var(--white);
+    border: none;
 }
 
 .btn-dark:hover {
     background: #1d2940;
+    transform: translateY(-1px);
 }
 
 .btn-signup-gray {
-    background: #6b7280;
+    background: var(--brand); /* Changed from gray to brand for consistency */
     color: #ffffff !important;
+    border: none;
 }
 
 .btn-light {
@@ -338,75 +341,76 @@ img {
     background-position: center;
 }
 
-.app-banner {
-    margin-top: 30px;
-    padding: 30px;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
+/* FOOTER STYLES */
 .site-footer {
     position: relative;
-    margin-top: 56px;
-    padding: 44px 0 30px;
-    color: rgba(255, 255, 255, 0.88);
+    margin-top: 60px;
+    padding: 60px 0 40px;
     background: #111827;
+    color: rgba(255, 255, 255, 0.7);
     overflow: hidden;
 }
 
 .site-footer::before {
     content: "";
     position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 55%);
-    pointer-events: none;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
 .footer-grid {
-    position: relative;
     display: grid;
-    grid-template-columns: 1.5fr 0.8fr 0.8fr;
-    gap: 28px;
-    padding: 32px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    background: rgba(255, 255, 255, 0.04);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
-    backdrop-filter: blur(10px);
+    grid-template-columns: 1.5fr 0.8fr 1fr;
+    gap: 40px;
 }
 
 .site-footer h3 {
-    margin-bottom: 14px;
-    color: #ffffff;
+    color: white;
     font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 24px;
 }
 
 .site-footer p {
-    max-width: 420px;
-    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.6;
+    margin-bottom: 20px;
 }
 
 .footer-links {
     list-style: none;
+    padding: 0;
 }
 
-.footer-links li + li {
-    margin-top: 10px;
+.footer-links li {
+    margin-bottom: 12px;
 }
 
 .footer-links a {
-    color: rgba(255, 255, 255, 0.72);
-    transition: color 0.2s ease, transform 0.2s ease;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s;
 }
 
 .footer-links a:hover {
-    color: #ffffff;
-    transform: translateX(2px);
-    display: inline-block;
+    color: white;
+    padding-left: 4px;
+}
+
+.footer-app-btn:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    transform: translateY(-2px);
+}
+
+.social-links a {
+    transition: all 0.3s;
+}
+
+.social-links a:hover {
+    color: white !important;
+    transform: scale(1.1);
 }
 
 /* SIDEBAR STYLES */
@@ -486,8 +490,14 @@ img {
 }
 
 .side-logout-btn {
-    color: #dc2626 !important;
-    border: 1px solid #fee2e2;
+    background: transparent;
+    color: #111827 !important;
+    border: 1px solid #111827;
+    justify-content: center !important;
+}
+
+.side-logout-btn:hover {
+    background: #f8fafc;
 }
 
 .side-menu-overlay {

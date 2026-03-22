@@ -31,7 +31,7 @@
     }
     
     .nav-btn-primary {
-        background: #ff6b35;
+        background: #111827;
         color: white;
     }
     
@@ -75,7 +75,7 @@
     }
     
     .stat-card.clients { border-top: 4px solid #17a2b8; }
-    .stat-card.bookings { border-top: 4px solid #ff6b35; }
+    .stat-card.bookings { border-top: 4px solid #111827; }
     .stat-card.pending { border-top: 4px solid #ffc107; }
     .stat-card.completed { border-top: 4px solid #28a745; }
     
@@ -117,7 +117,7 @@
     .client-avatar {
         width: 50px;
         height: 50px;
-        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        background: #111827;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -329,7 +329,7 @@
         <a href="{{ url_for('admin_dashboard') }}" class="nav-btn nav-btn-outline">
             <i class="fas fa-tachometer-alt"></i> Dashboard
         </a>
-        <a href="{{ url_for('logout') }}" class="nav-btn nav-btn-outline">
+        <a href="{{ url_for('logout') }}" class="nav-btn nav-btn-primary" style="background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.18);">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
     </div>

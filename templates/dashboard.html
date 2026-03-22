@@ -5,10 +5,11 @@
 {% block extra_css %}
 <style>
     .dashboard-header {
-        background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+        background: #111827;
         padding: 40px 50px;
         color: white;
         text-align: center;
+        border-bottom: 2px solid rgba(255,255,255,0.05);
     }
     
     .dashboard-header h1 {
@@ -38,7 +39,7 @@
     }
     
     .section-header .badge {
-        background: #ff6b35;
+        background: #111827;
         color: white;
         padding: 8px 20px;
         border-radius: 20px;
@@ -67,7 +68,7 @@
     .service-box:hover {
         transform: translateY(-8px);
         box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        border-color: #ff6b35;
+        border-color: #111827;
     }
     
     .service-thumb {
@@ -123,12 +124,12 @@
     }
     
     .action-btn.primary {
-        background: #ff6b35;
+        background: #111827;
         color: white;
     }
     
     .action-btn.primary:hover {
-        background: #e55a2b;
+        background: #1d2940;
     }
     
     .action-btn.secondary {
@@ -177,56 +178,67 @@
     }
 
     @media (max-width: 768px) {
-        .dashboard-header {
-            padding: 22px 16px;
-        }
+        .dashboard-header { padding: 22px 16px; }
+        .dashboard-header h1 { font-size: 30px; }
+        .dashboard-header p { font-size: 16px; }
+        .services-section { padding: 18px 12px; }
+        .section-header h2 { font-size: 24px; }
+        .services-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+        .quick-actions { margin: 16px 12px; padding: 18px; }
+        .quick-actions h3 { font-size: 20px; }
+        .action-buttons { flex-direction: column; }
+        .action-btn { justify-content: center; }
+    }
 
-        .dashboard-header h1 {
-            font-size: 30px;
-        }
+    /* Global Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 20px 10px;
+    }
 
-        .dashboard-header p {
-            font-size: 16px;
-        }
+    .modal-content {
+        background-color: white;
+        margin: auto;
+        padding: 30px;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 500px;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        animation: modalFadeUp 0.3s ease-out;
+    }
 
-        .services-section {
-            padding: 18px 12px;
-        }
+    @keyframes modalFadeUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
 
-        .section-header h2 {
-            font-size: 24px;
-        }
+    .close-modal-btn {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 28px;
+        cursor: pointer;
+        color: #999;
+        transition: color 0.2s;
+    }
 
-        .services-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 24px;
-        }
+    .close-modal-btn:hover { color: #333; }
 
-        .quick-actions {
-            margin: 16px 12px;
-            padding: 18px;
-        }
-
-        .quick-actions h3 {
-            font-size: 20px;
-        }
-
-        .action-buttons {
-            flex-direction: column;
-        }
-
-        .action-btn {
-            justify-content: center;
-        }
-
-        #serviceModal .modal-content {
-            margin: 12px auto !important;
-            width: calc(100% - 20px) !important;
-            max-height: calc(100vh - 24px);
-            overflow-y: auto;
-            padding: 18px !important;
-        }
+    @media (max-width: 600px) {
+        .modal { padding: 10px; }
+        .modal-content { padding: 24px 20px; border-radius: 16px; }
+        .modal-content h2 { font-size: 24px; }
     }
 </style>
 {% endblock %}
@@ -354,12 +366,12 @@
 </div>
 
 <!-- Service Booking Modal -->
-<div id="serviceModal" class="modal" style="display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
-    <div class="modal-content" style="background-color: white; margin: 5% auto; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; position: relative;">
-        <span onclick="closeModal()" style="position: absolute; right: 20px; top: 15px; font-size: 28px; cursor: pointer; color: #999;">&times;</span>
+<div id="serviceModal" class="modal">
+    <div class="modal-content">
+        <span onclick="closeModal()" class="close-modal-btn">&times;</span>
         
-        <h2 id="modalTitle" style="margin-bottom: 10px; color: #1a1a2e;"></h2>
-        <p id="modalDesc" style="margin-bottom: 25px; color: #666;"></p>
+        <h2 id="modalTitle" style="color: #1a1a2e; margin-bottom: 8px;"></h2>
+        <p id="modalDesc" style="color: #666; margin-bottom: 25px; line-height: 1.5;"></p>
         
 <form method="POST" action="{{ url_for('book_service') }}">
             <input type="hidden" id="serviceId" name="service_id">
@@ -395,7 +407,7 @@
                 <p id="locationStatus" style="margin-top: 8px; font-size: 13px; color: #666; display: none;"></p>
             </div>
             
-            <button type="submit" style="width: 100%; padding: 15px; background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%); color: white; border: none; border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer;">
+            <button type="submit" style="width: 100%; padding: 15px; background: #111827; color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
                 Send Inquiry
             </button>
         </form>

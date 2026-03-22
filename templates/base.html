@@ -66,11 +66,6 @@
                 <a href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a>
                 <a href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i> Login</a>
                 <a href="{{ url_for('signup') }}" class="side-signup-btn">Sign Up</a>
-                <div id="pwa-install-container" style="display: none; padding: 15px; margin-top: 10px; border-top: 1px solid #eee;">
-                    <button id="pwa-install-btn" style="width: 100%; padding: 14px; background: #111827; color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                        <i class="fas fa-cloud-arrow-down" style="font-size: 18px;"></i> Install App
-                    </button>
-                </div>
             {% endif %}
         </nav>
     </div>
@@ -93,25 +88,44 @@
     <footer class="site-footer">
         <div class="container footer-grid">
             <div class="footer-brand-block">
-                <h3>Conect Us</h3>
+                <a href="{{ url_for('index') }}" class="brand" style="color: white; margin-bottom: 15px; display: inline-flex;">
+                    <span class="brand-mark" style="background: white; color: #111827;">C</span>
+                    <span class="brand-text" style="color: white;">Conect Us</span>
+                </a>
                 <p>Trusted professionals for home and business services, delivered with fast booking and dependable support.</p>
+                <div class="social-links" style="display: flex; gap: 15px; margin-top: 22px;">
+                    <a href="#" style="color: rgba(255,255,255,0.6); font-size: 18px;"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" style="color: rgba(255,255,255,0.6); font-size: 18px;"><i class="fab fa-twitter"></i></a>
+                    <a href="#" style="color: rgba(255,255,255,0.6); font-size: 18px;"><i class="fab fa-instagram"></i></a>
+                    <a href="#" style="color: rgba(255,255,255,0.6); font-size: 18px;"><i class="fab fa-linkedin-in"></i></a>
+                </div>
             </div>
             <div>
-                <h3>Company</h3>
+                <h3>Quick Links</h3>
                 <ul class="footer-links">
-                    <li><a href="#">About</a></li>
-                    <li><a href="#">Support</a></li>
-                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Support Help</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
                 </ul>
             </div>
             <div>
-                <h3>Top Services</h3>
-                <ul class="footer-links">
-                    <li><a href="#">AC Repair</a></li>
-                    <li><a href="#">Cleaning</a></li>
-                    <li><a href="#">Electrician</a></li>
-                </ul>
+                <h3>Get the App</h3>
+                <p style="font-size: 13px; margin-bottom: 15px; color: rgba(255,255,255,0.5);">Download our mobile app to book services on the go.</p>
+                <div class="footer-app-links" style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="#" class="footer-app-btn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; transition: all 0.2s; font-size: 14px; font-weight: 600;">
+                        <i class="fab fa-google-play" style="font-size: 18px; color: #3df0ff;"></i>
+                        <span>Google Play</span>
+                    </a>
+                    <a href="#" class="footer-app-btn" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; transition: all 0.2s; font-size: 14px; font-weight: 600;">
+                        <i class="fas fa-store" style="font-size: 16px; color: #ffcc00;"></i>
+                        <span>Bharatstore</span>
+                    </a>
+                </div>
             </div>
+        </div>
+        <div class="container" style="margin-top: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 25px; font-size: 13px; color: rgba(255,255,255,0.3);">
+            &copy; 2024 Conect Us. All rights reserved.
         </div>
     </footer>
 
@@ -236,29 +250,6 @@
             });
         }
 
-        // PWA Install Prompt
-        let deferredPrompt;
-        const installContainer = document.getElementById('pwa-install-container');
-        const installBtn = document.getElementById('pwa-install-btn');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if (installContainer) installContainer.style.display = 'block';
-        });
-
-        if (installBtn) {
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        installContainer.style.display = 'none';
-                    }
-                    deferredPrompt = null;
-                }
-            });
-        }
 
         // Mobile Menu Toggle
         const sideMenu = document.getElementById('side-menu');

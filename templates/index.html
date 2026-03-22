@@ -23,7 +23,7 @@
     }
 
     .section-head a {
-        color: #ff6b35;
+        color: #111827;
         font-weight: 700;
     }
 
@@ -51,24 +51,6 @@
         margin-bottom: 10px;
     }
 
-    .app-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .app-buttons a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 132px;
-        padding: 12px 16px;
-        border-radius: 12px;
-        background: #111827;
-        color: white;
-        font-weight: 700;
-    }
-
     @media (max-width: 768px) {
         .section-head {
             align-items: flex-start;
@@ -89,15 +71,6 @@
 
         .service-card .thumb {
             height: 160px !important;
-        }
-
-        .app-buttons {
-            width: 100%;
-            flex-direction: column;
-        }
-
-        .app-buttons a {
-            width: 100%;
         }
     }
 </style>
@@ -185,16 +158,6 @@
     </div>
 </section>
 
-<section class="container app-banner">
-    <div>
-        <h2>Get the Conect Us app</h2>
-        <p>Book services faster, track professionals live, and get member-only offers.</p>
-    </div>
-    <div class="app-buttons">
-        <a href="#">Google Play</a>
-        <a href="#">App Store</a>
-    </div>
-</section>
 
 {% if not current_user.is_authenticated %}
 <script>
